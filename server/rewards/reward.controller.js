@@ -1,9 +1,9 @@
-const rewardService = require('./reward.service')
+const rewardService = require('./reward.service');
 
 class RewardController {
 
     constructor(rewardService) {
-        this.rewardService = rewardService
+        this.rewardService = rewardService;
     }
 
     async getRewardById(req, res){
