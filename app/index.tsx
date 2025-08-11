@@ -23,7 +23,7 @@ export default function HomeScreen() {
         try {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
-        
+
             const response = await fetch('http://localhost:3000/login/status', {
                 method: 'GET',
                 headers: {
@@ -158,7 +158,7 @@ export default function HomeScreen() {
                     pathname: '/history/HistoryScreen',
                     params: { dates: dates, actions: actions }
                 });
-            } 
+            }
 
         } catch (error) {
             Alert.alert('Se ha producido un error intentando acceder al historial');
@@ -167,10 +167,41 @@ export default function HomeScreen() {
         }
     }
 
+    const handlePlanAccess = async () => {
+        try {
+            setSpinnerIsVisible(true);
+            const token = await AsyncStorage.getItem('userToken');
+
+            const responseAllPlans = await fetch('http://localhost:3000/plan', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            const responseUserPlans = await fetch('http://localhost:3000/plan/user-plan', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            console.log('All plans: ', responseAllPlans);
+            console.log('User plans: ', responseUserPlans);
+
+
+
+        } catch(error) {
+            Alert.alert('Se ha producido un error intentando acceder a los planes');
+        } finally {
+            setSpinnerIsVisible(false);
+        }
+    }
+
     if (spinnerIsVisible) {
         return (
             <View>
-                <Pulse 
+                <Pulse
                     color="#d1821cff"
                     numPulses={3}
                     diameter={100}
@@ -216,7 +247,7 @@ export default function HomeScreen() {
     }
 
 
-    
+
 }
 
 const styles = StyleSheet.create({

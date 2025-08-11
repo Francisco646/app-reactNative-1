@@ -23,6 +23,39 @@ class PlansController {
         res.status(plans.statusCode).json(plans.message);
     }
 
+    async createUserPlan(req, res){
+        const token = req.headers.authorization?.split(' ')[1];
+        const planId = req.body.planId;
+
+        const createdPlan = await plansService.createUserPlan(token, planId);
+        res.status(createdPlan.statusCode).json(createdPlan.message);
+    }
+
+    async deleteUserPlan(req, res){
+        const token = req.headers.authorization?.split(' ')[1];
+        const planId = req.body.planId;
+
+        const deletedPlan = await plansService.deleteUserPlan(token, planId);
+        res.status(deletedPlan.statusCode).json(deletedPlan.message);
+    }
+
+    async updatePercentageCompletedUserPlan(req, res){
+        const token = req.headers.authorization?.split(' ')[1];
+        const id = req.body.id;
+        const porcetaje_completado = req.body.porcentaje_completado;
+
+        const updatedPlan = await plansService.updatePercentageCompletedUserPlan(token, id, porcetaje_completado);
+        res.status(updatedPlan.statusCode).json(updatedPlan.message);
+    }
+
+    async updateEndDateUserPlan(req, res){
+        const token = req.headers.authorization?.split(' ')[1];
+        const id = req.body.id;
+
+        const updatedPlan = await plansService.updateEndDateUserPlan(token, id);
+        res.status(updatedPlan.statusCode).json(updatedPlan.message);
+    }
+
 }
 
 const plansController = new PlansController(plansService);
