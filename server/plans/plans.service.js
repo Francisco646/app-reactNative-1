@@ -78,16 +78,16 @@ class PlansService {
             }
 
             const userId = user.id;
-            const plansOfUser = await planRepository.findPlansOfUser(userId);
-            const plans = [];
+            const planOfUser = await planRepository.findPlansOfUser(userId);
+            const planGeneralData = await planRepository.findPlanById(planOfUser.id)
 
-            for(const plan of plansOfUser) {
-                const planId = plan.plan_id;
-                const planResult = await planRepository.findPlanById(planId);
-                plans.push(planResult);
-            }
-
-            return { statusCode: 200, message: plans };
+            return {
+                statusCode: 200,
+                message: {
+                    planOfUser: planOfUser,
+                    planGeneralData: planGeneralData
+                }
+            };
 
         } catch(error) {
             console.error('Error obteniendo los planes:', error);

@@ -25,7 +25,7 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('')
 
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
-    
+
     const info = {
         plataforma: Platform.OS,
         modelo_dispositivo: Device.modelName,
@@ -36,13 +36,13 @@ export default function LoginScreen() {
     const handleLogin = async () => {
         try{
             setSpinnerIsVisible(true);
-            
+
             const response = await fetch('http://localhost:3000/login', {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "application.json"
-                }, 
+                },
                 body: JSON.stringify({
                     email: email,
                     password: password,
@@ -74,14 +74,16 @@ export default function LoginScreen() {
     };
 
     if(spinnerIsVisible){
-        <View>
-            <Pulse 
-                color="#d1821cff"
-                numPulses={3}
-                diameter={100}
-                speed={1}
-            />
-        </View>
+        return(
+            <View>
+                <Pulse
+                    color="#d1821cff"
+                    numPulses={3}
+                    diameter={100}
+                    speed={1}
+                />
+            </View>
+        )
     } else {
         return (
             <ScrollView contentContainerStyle={styles.container}>
@@ -115,7 +117,7 @@ export default function LoginScreen() {
                 </View>
                 <View style={styles.linkToRegister}>
                     <Text>
-                        Don&#39;t have an account? 
+                        Don&#39;t have an account?
                     </Text>
                     <Text onPress={() => router.push('/register/RegisterGeneralScreen')} style={styles.linkToRegisterText}>
                         Register here
@@ -125,7 +127,7 @@ export default function LoginScreen() {
         );
     }
 
-    
+
 };
 
 // Define styles for the component

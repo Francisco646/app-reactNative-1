@@ -1,32 +1,35 @@
 import React from 'react';
 import {View, Text, StyleSheet, Image} from 'react-native';
+import {useLocalSearchParams} from "expo-router";
 
 /* Mostrar los datos sobre una actividad específica de un plan */
 export default function ActivityDetailScreen() {
+
+    const { activitiesData } = useLocalSearchParams();
+
+    const activitiesDataAdapted = activitiesData
+        ? JSON.parse(Array.isArray(activitiesData) ? activitiesData[0]: activitiesData)
+        : [];
+
     return(
         <View style={styles.container}>
             <View style={styles.titleContainer}>
-                <Text style={styles.titleText}>Título de la actividad</Text>
+                <Text style={styles.titleText}>{activitiesDataAdapted.nombre}</Text>
             </View>
             <View style={styles.topImageContainer}>
-                <Image style={styles.topImageImage} source={require('../../assets/image_1296698.png')} resizeMode="contain" />
+                <Image style={styles.topImageImage} source={require('../../assets/images/image_1296698.png')} resizeMode="contain" />
             </View>
             <View>
                 <Text style={styles.activityKeyPointsTitle}>
-                    Key Points of the Activity:
+                    Descripción de la actividad:
+                    {activitiesDataAdapted.descripcion}
                 </Text>
-                <View style={styles.activityKeyPointsContainer}>
-                    <Text style={styles.activityKeyPointsText}>- Punto 1</Text>
-                    <Text style={styles.activityKeyPointsText}>- Punto 2</Text>
-                    <Text style={styles.activityKeyPointsText}>- Punto 3</Text>
-                </View>
             </View>
             <View style={styles.activityDescriptionContainer}>
-                <Text style={styles.activityDescriptionTitle}>
-                    Descripción de la actividad:
-                </Text>
                 <Text style={styles.activityDescriptionText}>
-                    Introducir descripción de la actividad en este apartado.
+                     -- Número de series: {activitiesDataAdapted.numero_series}
+                     -- Número de repeticiones (si procede): {activitiesDataAdapted.numero_repeticiones}
+                     -- Duración (en minutos, si procede): {activitiesDataAdapted.duracion_minutos}
                 </Text>
             </View>
         </View>

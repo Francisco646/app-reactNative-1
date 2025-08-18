@@ -10,6 +10,9 @@ class RoutinesRoutes {
 
     initRoutinesRoutes() {
         this.router.get('/', routinesController.getRoutines);
+        this.router.post('/start', routinesController.startRoutine);
+        this.router.put('/end', routinesController.endRoutine);
+        this.router.get('/quantity', routinesController.getNumberOfCompletedRoutines);
     }
 
     getRouter(){

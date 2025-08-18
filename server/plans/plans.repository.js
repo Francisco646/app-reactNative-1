@@ -19,7 +19,7 @@ const findPlansByDiseaseType = async (tipo_enfermedad) => {
 const findAllPlans = async () => {
     const query = 'SELECT * FROM planes';
     const result = await db.query(query);
-    return result[0];
+    return result;
 }
 
 /* Obtener los planes correspondientes a un usuario */

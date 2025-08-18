@@ -9,7 +9,9 @@ class ActivitiesRoutes {
     }
 
     initActivitiesRoutes() {
-        this.router.get('/', activitiesController.getActivities)
+        this.router.get('/', activitiesController.getActivities);
+        this.router.put('/completion', activitiesController.setActivityAsCompleted);
+        this.router.get('/quantity', activitiesController.getNumberOfCompletedActivities);
     }
 
     getRouter() {

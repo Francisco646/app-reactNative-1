@@ -186,12 +186,26 @@ export default function HomeScreen() {
                 }
             })
 
-            console.log('All plans: ', responseAllPlans);
-            console.log('User plans: ', responseUserPlans);
+            if(responseAllPlans.status === 200 && responseUserPlans.status === 200) {
 
+                const dataAllPlans = await responseAllPlans.json();
+                const dataUserPlans = await responseUserPlans.json();
 
+                console.log('All plans: ', dataAllPlans);
+                console.log('User plans: ', dataUserPlans);
+
+                router.push({
+                    pathname: '/plans/PlanLandingScreen',
+                    params: {
+                        allPlans: JSON.stringify(dataAllPlans),
+                        userPlans: JSON.stringify(dataUserPlans.planOfUser),
+                        userPlansData: JSON.stringify(dataUserPlans.planGeneralData)
+                    }
+                })
+            }
 
         } catch(error) {
+            console.error('Error accediendo a los planes:', error);
             Alert.alert('Se ha producido un error intentando acceder a los planes');
         } finally {
             setSpinnerIsVisible(false);
@@ -240,8 +254,12 @@ export default function HomeScreen() {
                     <Text style={styles.links}> - Press here to see history</Text>
                 </Pressable>
 
+                <Pressable onPress={() => handlePlanAccess()}>
+                    <Text style={styles.links}> - Press here to see plans</Text>
+                </Pressable>
+
                 <Text style={styles.links}> - Press here to see calendar</Text>
-                <Text style={styles.links}> - Press here to see plans</Text>
+
             </ScrollView>
         );
     }
