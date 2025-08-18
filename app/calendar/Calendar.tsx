@@ -22,9 +22,9 @@ export default function Calendar() {
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
 
     const handleDaySelection = async () => {
-        
+
         try {
-            setSpinnerIsVisible(true);  
+            setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
 
             const response = await fetch(`http://localhost:3000/calendar/${selectedDate}`, {
@@ -46,18 +46,20 @@ export default function Calendar() {
             Alert.alert("Error en la seleccion de rutinas")
         } finally {
             setSpinnerIsVisible(false);
-        }  
+        }
     }
 
     if(spinnerIsVisible) {
-        <View>
-            <Pulse 
-                color="#d1821cff"
-                numPulses={3}
-                diameter={100}
-                speed={1}
-            />
-        </View>
+        return(
+            <View>
+                <Pulse
+                    color="#d1821cff"
+                    numPulses={3}
+                    diameter={100}
+                    speed={1}
+                />
+            </View>
+            )
     } else {
         return (
             <ScrollView style={styles.container}>

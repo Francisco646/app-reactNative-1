@@ -19,6 +19,9 @@ const RewardRoutes = require('./rewards/reward.routes');
 const SettingRoutes = require('./settings/setting.routes');
 const HistoryRoutes = require('./history/history.routes');
 const CalendarRoutes = require('./calendar/calendar.routes');
+const ActivitiesRoutes = require('./activities/activities.routes');
+const RoutinesRoutes = require('./routines/routines.routes');
+const PlansRoutes = require('./plans/plans.routes');
 
 /* Inicializar rutas */
 const registerRoutes = new RegisterRoutes();
@@ -27,6 +30,9 @@ const rewardRoutes = new RewardRoutes();
 const settingRoutes = new SettingRoutes();
 const historyRoutes = new HistoryRoutes();
 const calendarRoutes = new CalendarRoutes();
+const activitiesRoutes = new ActivitiesRoutes();
+const routinesRoutes = new RoutinesRoutes();
+const plansRoutes = new PlansRoutes();
 
 /* Habilitar uso de rutas */
 app.use('/register', registerRoutes.getRouter());
@@ -35,6 +41,9 @@ app.use('/reward', rewardRoutes.getRouter());
 app.use('/setting', settingRoutes.getRouter());
 app.use('/history', historyRoutes.getRouter());
 app.use('/calendar', calendarRoutes.getRouter());
+app.use('/activity', activitiesRoutes.getRouter());
+app.use('/routine', routinesRoutes.getRouter());
+app.use('/plan', plansRoutes.getRouter());
 
 /* Abrir servidor */
 app.listen(PORT, () => {

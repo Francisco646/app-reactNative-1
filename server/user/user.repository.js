@@ -62,7 +62,7 @@ const createGeneralUser = async(fecha_nacimiento, tipo_enfermedad, fecha_fin_tra
 }
 
 const updateUserPassword = async (id, contrasena) => {
-    const query = 'UPDATE users SET contrasena = ? WHERE id = ?';
+    const query = 'UPDATE usuarios SET contrasena = ? WHERE id = ?';
     const values = [contrasena, id];
 
     const result = await db.query(query, values);
