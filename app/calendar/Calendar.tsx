@@ -27,7 +27,7 @@ export default function Calendar() {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
 
-            const response = await fetch(`http://localhost:3000/calendar/${selectedDate}`, {
+            const response = await fetch(`http://localhost:3000/routine/date?date=${selectedDate}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -44,6 +44,41 @@ export default function Calendar() {
         } catch(error) {
             console.error("Error seleccionando las rutinas: ", error)
             Alert.alert("Error en la seleccion de rutinas")
+        } finally {
+            setSpinnerIsVisible(false);
+        }
+    }
+
+    // @ts-ignore
+    const handleRoutineAccess = async(routine) => {
+        try{
+            setSpinnerIsVisible(true);
+            const token = await AsyncStorage.getItem('userToken');
+
+            const response = await fetch(`http://localhost:3000/activity?routineId=${routine.id}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+
+            if(response.status === 200) {
+                const activitiesData = await response.json();
+                console.log('Data of Activities');
+
+                router.push({
+                    pathname: '/plans/RoutineDetailScreen',
+                    params: {
+                        routineData: JSON.stringify(routine),
+                        activitiesData: JSON.stringify(activitiesData),
+                        isThisPlanActive: JSON.stringify('true')
+                    }
+                })
+            }
+
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Error accediendo a la rutina");
         } finally {
             setSpinnerIsVisible(false);
         }
@@ -97,7 +132,7 @@ export default function Calendar() {
                 {/* Título del día seleccionado */}
                 {selectedDate && (
                     <Text style={styles.activitiesTitle}>
-                    Actividades del día {selectedDate}
+                        Actividades del día {selectedDate}
                     </Text>
                 )}
 
@@ -109,16 +144,12 @@ export default function Calendar() {
                         routinesForSelectedDay.map((routine, idx) => (
                         <View key={idx} style={styles.specificRoutineContainer}>
                             <Text style={styles.specificRoutineText}>
-                            {routine}
+                              {routine}
                             </Text>
-                            <TouchableOpacity
-                            style={styles.routineButton}
-                            onPress={() =>
-                                router.push('/')
-                            }>
-                            <Text style={styles.routineButtonText}>
-                                Ver rutina
-                            </Text>
+                            <TouchableOpacity style={styles.routineButton} onPress={() => handleRoutineAccess(routine)}>
+                                <Text style={styles.routineButtonText}>
+                                    Ver rutina
+                                </Text>
                             </TouchableOpacity>
                         </View>
                         ))
@@ -133,6 +164,8 @@ export default function Calendar() {
       );
     }
 }
+
+// const { routineData, activitiesData, isThisPlanActive } = useLocalSearchParams();
 
 const styles = StyleSheet.create({
   container: {

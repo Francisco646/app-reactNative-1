@@ -1,13 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import { Drawer } from 'react-native-drawer-layout';
-import DrawerContent from './DrawerContent'; // Assuming DrawerContent is in the same directory
+import DrawerContent from './DrawerContent';
 
 const Pulse = require('react-native-pulse').default;
 
@@ -24,7 +24,54 @@ export default function HomeScreen() {
     const [open, setOpen] = React.useState(false);
 
     const drawer = useRef<{ openDrawer: () => void } | null>(null);
-    
+    const [loginStatusMessage, setLoginStatusMessage] = useState('');
+
+    const getCurrentDate = () => {
+        const currentDate = new Date();
+        const dayOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' } as const;
+        return new Intl.DateTimeFormat('es-ES', dayOptions).format(currentDate);
+    }
+
+    const getLoginStatus = async () => {
+        
+        try {
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) {
+                Alert.alert('No hay sesión activa');
+                return 'No hay sesión activa';
+            }
+
+            const response = await fetch('http://localhost:3000/login/status', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            if(response.status === 204) {
+                await AsyncStorage.removeItem('userToken');
+                return 'Sesión expirada. Por favor, inicia sesión de nuevo.';
+            }
+
+            return '¡Sesión activa!';
+            
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Error obteniendo datos de sesión");
+            return 'Error';
+        }
+
+    }
+
+    useEffect(() => {
+        const fetchLoginStatus = async () => {
+            const message = await getLoginStatus();
+            setLoginStatusMessage(message);
+        };
+
+        fetchLoginStatus();
+    }, []);
+
     const handleLoginStatus = async () => {
         try {
             setSpinnerIsVisible(true);
@@ -205,9 +252,22 @@ export default function HomeScreen() {
                     params: {
                         allPlans: JSON.stringify(dataAllPlans),
                         userPlans: JSON.stringify(dataUserPlans.planOfUser),
-                        userPlansData: JSON.stringify(dataUserPlans.planGeneralData)
+                        userPlansData: JSON.stringify(dataUserPlans.planGeneralData),
+
                     }
                 })
+            } else if(responseUserPlans.status === 404 && (await responseUserPlans.json()) === 'No se ha encontrado un plan para el usuario.') {
+                const dataAllPlans = await responseAllPlans.json();
+                console.log('All plans: ', dataAllPlans);
+
+                router.push({
+                    pathname: '/plans/PlanLandingScreen',
+                    params: {
+                        allPlans: JSON.stringify(dataAllPlans),
+                        userPlans: JSON.stringify([]),
+                        userPlansData: JSON.stringify({})
+                    }
+                });
             }
 
         } catch(error) {
@@ -259,7 +319,7 @@ export default function HomeScreen() {
                             <View style={styles.cardContent}>
                                 <View>
                                     <Text style={styles.cardTitle}>Calendario</Text>
-                                    <Text style={styles.cardSubtitle}>Lunes, 12 de mayo</Text>
+                                    <Text style={styles.cardSubtitle}>{getCurrentDate()}</Text>
                                     <Text style={styles.cardSubtitle}>¿Qué tenemos que hacer hoy?</Text>
                                 </View>
                                 <Pressable style={styles.button} onPress={() => router.push('/calendar/Calendar')}>
@@ -294,11 +354,12 @@ export default function HomeScreen() {
 
                         {/* Controles para depuración, puedes eliminarlos después */}
                         <View style={styles.debugContainer}>
-                            <Text style={styles.links} onPress={handleLoginStatus}>Login Status</Text>
-                            <Text style={styles.links} onPress={handleLogout}>Logout</Text>
+                            <Text style={styles.links} onPress={() => handleLoginStatus()}>Login</Text>
+                            <Text style={styles.links} onPress={() => handleLogout()}>Logout</Text>
+                            <Text style={styles.links}>{loginStatusMessage}</Text>
                             <Text style={styles.links} onPress={() => router.push('/register/RegisterGeneralScreen')}>Register</Text>
                             <Text style={styles.links} onPress={() => router.push('/settings/SettingsLandingScreen')}>Settings</Text>
-                            <Text style={styles.links} onPress={handleHistoryAccess}>History</Text>
+                            <Text style={styles.links} onPress={() => handleHistoryAccess()}>History</Text>
                         </View>
                     </ScrollView>
                 </View>

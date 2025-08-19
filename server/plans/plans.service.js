@@ -1,13 +1,15 @@
 const planRepository = require('./plans.repository');
+const routinesRepository = require('../routines/routines.repository');
 const userRepository = require('../user/user.repository');
 
 const jwt = require('jsonwebtoken');
 
 class PlansService {
 
-    constructor(planRepository, userRepository) {
+    constructor(planRepository, userRepository, routinesRepository) {
         this.planRepository = planRepository;
         this.userRepository = userRepository;
+        this.routinesRepository = routinesRepository;
     }
 
     /* AUXILIAR */
@@ -33,6 +35,58 @@ class PlansService {
         } catch (err) {
             return { error: true, code: 500, message: err.message };
         }
+    }
+
+    async generateDates(numWeeks, routinesOfPlan) {
+        
+        let today = new Date();
+        
+        for(let i = 0; i < numWeeks; i++){
+            let baseDate = new Date(today)
+            baseDate.setDate(baseDate.getDate() + i * 7)
+
+            switch(routinesOfPlan.length) {
+                case 1:
+                    const nextMonday_1 = this.getNextWeekday(baseDate, 1);
+                    await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[0].id, nextMonday_1);
+
+                    break;
+
+                case 2:
+                    const nextMonday_2 = this.getNextWeekday(baseDate, 1);
+                    const nextThursday = this.getNextWeekday(baseDate, 4);
+
+                    await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[0].id, nextMonday_2);
+                    await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[1].id, nextThursday);
+                    
+                    break;
+
+                case 3:
+                    const nextMonday_3 = this.getNextWeekday(baseDate, 1);
+                    const nextWednesday = this.getNextWeekday(baseDate, 3);
+                    const nextFriday = this.getNextWeekday(baseDate, 5);
+
+                    await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[0].id, nextMonday_3);
+                    await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[1].id, nextWednesday);
+                    await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[2].id, nextFriday);
+                    
+                    break;
+
+                default:
+                    // Code
+            }
+            
+        }
+
+        return routinesDates;
+    }
+
+    /* Obtiene la fecha del próximo día de la semana especificado */
+    getNextWeekday(date, weekday) {
+        const resultDate = new Date(date);
+        const daysToAdd = (7 + weekday - resultDate.getDay()) % 7;
+        resultDate.setDate(resultDate.getDate() + daysToAdd);
+        return resultDate;
     }
 
 
@@ -79,7 +133,13 @@ class PlansService {
 
             const userId = user.id;
             const planOfUser = await planRepository.findPlansOfUser(userId);
-            const planGeneralData = await planRepository.findPlanById(planOfUser.id)
+
+            if(!planOfUser){
+                return { statusCode: 404, message: 'No se ha encontrado un plan para el usuario.' };
+            }
+
+            console.log('Plan of user:', planOfUser);
+            const planGeneralData = await planRepository.findPlanById(planOfUser.plan_id);
 
             return {
                 statusCode: 200,
@@ -106,7 +166,19 @@ class PlansService {
                 return { statusCode: 400, message: 'El usuario ya tiene un plan asignado.' };
             }
 
+            // Crear plan al usuario y obtener el id del plan
             const createdUserPlan = await planRepository.createUserPlan(userId, plan_id);
+            const basePlan = await planRepository.findPlanById(plan_id);
+
+            // Insertar en el calendario
+            const routinesOfPlan = await routinesRepository.findRoutinesByPlanId(plan_id);
+            const numWeeks = basePlan.num_semanas;
+            const dates = this.generateDates(numWeeks, routinesOfPlan);
+    
+            for (const date of dates) {
+                await routinesRepository.insertRoutineInCalendar(userId, date);
+            }
+
             return { statusCode: 201, message: createdUserPlan };
 
         } catch (error) {
@@ -115,7 +187,7 @@ class PlansService {
         }
     }
 
-    async deleteUserPlan(token, plan_id) {
+    async deleteUserPlan(token) {
         try {
             const result = await this.manageToken(token);
             if (result.error) return { statusCode: result.code, message: result.message };
@@ -126,8 +198,9 @@ class PlansService {
                 return { statusCode: 400, message: 'El usuario no tiene un plan asignado.' };
             }
 
+            await routinesRepository.deleteUserRoutinesFromCalendar(userPlans.id);
             await planRepository.deleteUserPlan(userPlans.id);
-            return { statusCode: 204, message: 'Plan eliminado con éxito.' };
+            return { statusCode: 204 };
 
         } catch (error) {
             console.error('Error eliminando un plan de usuario:', error);
@@ -177,5 +250,5 @@ class PlansService {
 
 }
 
-const plansService = new PlansService(planRepository, userRepository);
+const plansService = new PlansService(planRepository, userRepository, routinesRepository);
 module.exports = plansService;

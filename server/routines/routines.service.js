@@ -151,6 +151,33 @@ class RoutinesService {
         }
     }
 
+    async getRoutinesOfDate(token, date) {
+        if(!token || token === 'undefined' || token === 'null') {
+            return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
+        }
+
+        try {
+            const decodedToken = jwt.decode(token, 'supersecret');
+            const emailFromToken = decodedToken.email;
+
+            if(!emailFromToken){
+                return { statusCode: 400, message: 'El email del token no es válido. Regresar a inicio.' };
+            }
+
+            const user = await userRepository.findUserByEmail(emailFromToken);
+            if(!user) {
+                return { statusCode: 404, message: 'No se ha encontrado el usuario con dicho email.' };
+            }
+
+            const routinesOfDate = await routinesRepository.findRoutinesInCalendarByUserIdAndDate(user.id, date);
+            return { statusCode: 200, message: routinesOfDate };
+
+        } catch (error) {
+            console.error('Error obteniendo las rutinas del calendario:', error);
+            return { statusCode: 500, message: error };
+        }
+    }
+
 }
 
 const routinesService = new RoutinesService(routinesRepository, userRepository, activitiesRepository);

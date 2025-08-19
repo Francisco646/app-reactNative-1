@@ -1,7 +1,7 @@
-import React from "react";
-import {View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Alert} from 'react-native';
-import {router, useLocalSearchParams} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import React from "react";
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Pulse = require('react-native-pulse').default;
 
@@ -56,14 +56,17 @@ export default function PlanLandingScreen() {
                 let planIsActive = false;
                 let canSelectPlan = false;
 
-                if (userPlansDataArray && plan.id === userPlansDataArray.id) {
-                    // Plan seleccionado por el usuario
-                    planIsActive = true;
-                    canSelectPlan = false;
-                } else if (userPlansDataArray) {
-                    // Ya hay un plan seleccionado, pero no es este
-                    planIsActive = false;
-                    canSelectPlan = false;
+                if (userPlansDataArray.length > 0) {
+                // Hay un plan seleccionado. Ahora comprueba si es el plan actual
+                    if (plan.id === userPlansDataArray[0].id) {
+                        // Plan seleccionado por el usuario
+                        planIsActive = true;
+                        canSelectPlan = false;
+                    } else {
+                        // Ya hay un plan seleccionado, pero no es este
+                        planIsActive = false;
+                        canSelectPlan = false;
+                    }
                 } else {
                     // No hay ningún plan seleccionado
                     planIsActive = false;
@@ -130,15 +133,19 @@ export default function PlanLandingScreen() {
                         </View>
                     ))}
 
-                    <Text style={styles.planListTitle}>Plan del usuario</Text>
-                    <View style={styles.planListSubContainer}>
+                    {userPlansDataArray.length > 0 ? (
+                    <>
+                        <Text style={styles.planListTitle}>Plan del usuario</Text>
+                        <View style={styles.planListSubContainer}>
                         <TouchableOpacity>
                             <Text>{userPlansDataArray.nombre}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.planListSubContainerButton} onPress={() => handleRoutinesAccess(userPlansDataArray)}>
                             <Text style={styles.planListSubContainerButtonText}>Ver Plan</Text>
                         </TouchableOpacity>
-                    </View>
+                        </View>
+                    </>
+                    ) : null}
                 </View>
             </ScrollView>
         )

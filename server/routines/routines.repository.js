@@ -53,6 +53,33 @@ const findCompletedRoutines = async(usuario_id) => {
     return result[0]; // Basta con el primero, en este caso
 }
 
+/* Insertar rutina en el calendario */
+const insertRoutineInCalendar = async(usuario_id, rutina_id, fecha, estado = 'pendiente') => {
+    const query = 'INSERT INTO rutinas_calendario (usuario_id, rutina_id, fecha, estado) VALUES (?, ?, ?, ?)';
+    const values = [usuario_id, rutina_id, fecha, estado];
+
+    const result = await db.query(query, values);
+    return result[0];
+}
+
+/* Eliminar rutina del calendario */
+const deleteUserRoutinesFromCalendar = async(usuario_id) => {
+    const query = 'DELETE FROM rutinas_calendario WHERE usuario_id = ?';
+    const values = [usuario_id];
+
+    const result = await db.query(query, values);
+    return result[0];
+}
+
+/* Obtener las rutinas del calendario correspondientes a un usuario por fecha */
+const findRoutinesInCalendarByUserIdAndDate = async(usuario_id, fecha) => {
+    const query = 'SELECT * FROM rutinas_calendario WHERE usuario_id = ? AND fecha = ?';
+    const values = [usuario_id, fecha];
+
+    const result = await db.query(query, values);
+    return result;
+}
+
 module.exports = {
     findRoutineById,
     findRoutinesByPlanId,
@@ -60,5 +87,9 @@ module.exports = {
     startRoutine,
     endRoutine,
     findNumberOfCompletedRoutines,
-    findCompletedRoutines
-}
+    findCompletedRoutines,
+
+    insertRoutineInCalendar,
+    deleteUserRoutinesFromCalendar,
+    findRoutinesInCalendarByUserIdAndDate
+};

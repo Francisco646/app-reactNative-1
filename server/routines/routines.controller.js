@@ -37,6 +37,14 @@ class RoutinesController {
         res.status(numberOfCompletedRoutines.statusCode).json(numberOfCompletedRoutines.message);
     }
 
+    async getRoutinesOfDate(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const date = req.query.date;
+
+        const routines = await routinesService.getRoutinesOfDate(token, date);
+        res.status(routines.statusCode).json(routines.message);
+    }
+
 }
 
 const routinesController = new RoutinesController(routinesService);

@@ -1,7 +1,7 @@
-import React from 'react';
-import {View, Text, StyleSheet, Image, Alert, TouchableOpacity} from 'react-native';
-import {router, useLocalSearchParams} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import React from 'react';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Pulse = require('react-native-pulse').default;
 
@@ -28,11 +28,18 @@ export default function PlanDetailScreen() {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
 
+            console.log(planData)
+
             const response = await fetch('http://localhost:3000/plan/new-user-plan', {
                 method: 'POST',
                 headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json'
+                },
+                body: JSON.stringify({
+                    planId: planData.id
+                })
             })
 
             const data = await response.json();

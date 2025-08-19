@@ -32,7 +32,7 @@ const findPlansOfUser = async (usuario_id) => {
 }
 
 const createUserPlan = async (usuario_id, plan_id) => {
-    const query = 'INSERT INTO usuarios_planes (fecha_inicio, porcentaje_completado, usuario_id, plan_id) VALUES (?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO usuarios_planes (fecha_inicio, porcentaje_completado, usuario_id, plan_id) VALUES (?, ?, ?, ?)';
     const values = [Date.now(), 0, usuario_id, plan_id];
 
     const result = await db.query(query, values);
