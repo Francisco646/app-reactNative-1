@@ -1,11 +1,11 @@
 
 import {
-  Alert,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -30,6 +30,7 @@ export default function Calendar() {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
 
+            // Rutinas del día
             const response = await fetch(`http://localhost:3000/routine/date?date=${dateString}`, {
                 method: 'GET',
                 headers: {
@@ -39,8 +40,28 @@ export default function Calendar() {
 
             if (response.status === 200) {
                 const data = await response.json();
-                setRoutinesForSelectedDay(data);
-                console.log(data);
+
+                let routinesList = [];
+
+                for (const routine of data) {
+                    // Obtener las rutinas del día seleccionado por su id (id_rutina)
+                    const responseRoutines = await fetch(`http://localhost:3000/routine/${routine.rutina_id}`, {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    
+                    const routinesData = await responseRoutines.json();
+                    if (responseRoutines.status === 200) {
+                        routinesList.push(routinesData);
+                    } else {
+                        console.error('Error fetching routine data');
+                    }
+                }
+
+                setRoutinesForSelectedDay(routinesList);
+                console.log(routinesList);
             } else {
                 console.error('Error fetching calendar data');
             }
@@ -67,7 +88,7 @@ export default function Calendar() {
 
             if(response.status === 200) {
                 const activitiesData = await response.json();
-                console.log('Data of Activities');
+                console.log('Data of Activities:', activitiesData);
 
                 router.push({
                     pathname: '/plans/RoutineDetailScreen',

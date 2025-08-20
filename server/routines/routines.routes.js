@@ -14,6 +14,7 @@ class RoutinesRoutes {
         this.router.put('/end', routinesController.endRoutine);
         this.router.get('/quantity', routinesController.getNumberOfCompletedRoutines);
         this.router.get('/date', routinesController.getRoutinesOfDate);
+        this.router.get('/:id', routinesController.getRoutineById);
     }
 
     getRouter(){

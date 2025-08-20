@@ -14,6 +14,14 @@ class RoutinesController {
         res.status(routines.statusCode).json(routines.message);
     }
 
+    async getRoutineById(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const routineId = req.params.id;
+
+        const routine = await routinesService.getRoutineById(token, routineId);
+        res.status(routine.statusCode).json(routine.message);
+    }
+
     async startRoutine(req, res){
         const token = req.headers.authorization?.split(' ')[1];
         const routineId = req.body.routineId;
