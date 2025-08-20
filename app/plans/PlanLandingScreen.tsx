@@ -20,17 +20,18 @@ export default function PlanLandingScreen() {
         ? JSON.parse(Array.isArray(userPlans) ? userPlans[0] : userPlans)
         : [];
 
-    const userPlansDataArray = userPlansData
+    const userPlansDataObj = userPlansData
         ? JSON.parse(Array.isArray(userPlansData) ? userPlansData[0] : userPlansData)
-        : [];
+        : null;
+
+    // Un objeto vacío {} no significa que haya un plan.
+    const userHasActivePlan = userPlansDataObj && Object.keys(userPlansDataObj).length > 0;
 
     console.log('All Plans:', allPlansArray);
     console.log('User Plans:', userPlansArray);
-    console.log('User Plans Data:', userPlansDataArray);
+    console.log('User Plans Data:', userPlansDataObj);
 
     const [spinnerIsVisible, setSpinnerIsVisible] = React.useState(false);
-
-    const [ planIsActive, setPlanIsActive ] = React.useState(false);
 
     // @ts-ignore
     const handleRoutinesAccess = async (plan) => {
@@ -56,9 +57,9 @@ export default function PlanLandingScreen() {
                 let planIsActive = false;
                 let canSelectPlan = false;
 
-                if (userPlansDataArray.length > 0) {
+                if (userHasActivePlan) {
                 // Hay un plan seleccionado. Ahora comprueba si es el plan actual
-                    if (plan.id === userPlansDataArray[0].id) {
+                    if (plan.id === userPlansDataObj.id) {
                         // Plan seleccionado por el usuario
                         planIsActive = true;
                         canSelectPlan = false;
@@ -80,6 +81,7 @@ export default function PlanLandingScreen() {
                         plan: JSON.stringify(plan),
                         planIsActive: planIsActive.toString(),
                         canSelectPlan: canSelectPlan.toString(),
+                        allPlans: JSON.stringify(allPlansArray)
                     }
                 });
 
@@ -133,16 +135,20 @@ export default function PlanLandingScreen() {
                         </View>
                     ))}
 
-                    {userPlansDataArray.length > 0 ? (
+                    { /* @ts-ignore */ }
+                    {userHasActivePlan ? (
                     <>
                         <Text style={styles.planListTitle}>Plan del usuario</Text>
                         <View style={styles.planListSubContainer}>
-                        <TouchableOpacity>
-                            <Text>{userPlansDataArray.nombre}</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.planListSubContainerButton} onPress={() => handleRoutinesAccess(userPlansDataArray)}>
-                            <Text style={styles.planListSubContainerButtonText}>Ver Plan</Text>
-                        </TouchableOpacity>
+                            <TouchableOpacity>
+                                <Text>{userPlansDataObj.nombre}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.planListSubContainerButton}
+                                onPress={() => handleRoutinesAccess(userPlansDataObj)}
+                            >
+                                <Text style={styles.planListSubContainerButtonText}>Ver Plan</Text>
+                            </TouchableOpacity>
                         </View>
                     </>
                     ) : null}

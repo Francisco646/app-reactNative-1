@@ -256,7 +256,7 @@ export default function HomeScreen() {
 
                     }
                 })
-            } else if(responseUserPlans.status === 404 && (await responseUserPlans.json()) === 'No se ha encontrado un plan para el usuario.') {
+            } else if(responseUserPlans.status === 404) {
                 const dataAllPlans = await responseAllPlans.json();
                 console.log('All plans: ', dataAllPlans);
 

@@ -33,7 +33,7 @@ const findPlansOfUser = async (usuario_id) => {
 
 const createUserPlan = async (usuario_id, plan_id) => {
     const query = 'INSERT INTO usuarios_planes (fecha_inicio, porcentaje_completado, usuario_id, plan_id) VALUES (?, ?, ?, ?)';
-    const values = [Date.now(), 0, usuario_id, plan_id];
+    const values = [new Date(), 0, usuario_id, plan_id];
 
     const result = await db.query(query, values);
     return result[0];
@@ -56,8 +56,8 @@ const updatePercentageCompletedUserPlan = async (id, porcentaje_completado) => {
 }
 
 const updateEndDateUserPlan = async (id) => {
-    const query = 'UPDATE usuarios_planes SET fecha fin = ? WHERE id = ?';
-    const values = [Date.now(), id];
+    const query = 'UPDATE usuarios_planes SET fecha_fin = ? WHERE id = ?';
+    const values = [new Date(), id];
 
     const result = await db.query(query, values);
     return result[0];

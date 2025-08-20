@@ -21,13 +21,16 @@ export default function Calendar() {
 
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
 
-    const handleDaySelection = async () => {
+    // @ts-ignore
+    const handleDaySelection = async (dateString) => {
+
+        if (!dateString) return;
 
         try {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
 
-            const response = await fetch(`http://localhost:3000/routine/date?date=${selectedDate}`, {
+            const response = await fetch(`http://localhost:3000/routine/date?date=${dateString}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -118,7 +121,7 @@ export default function Calendar() {
                     // @ts-ignore
                     onDayPress={day => {
                         setSelectedDate(day.dateString);
-                        handleDaySelection();
+                        handleDaySelection(day.dateString);
                     }}
                     markedDates={{
                         [selectedDate ?? '']: {
@@ -144,7 +147,7 @@ export default function Calendar() {
                         routinesForSelectedDay.map((routine, idx) => (
                         <View key={idx} style={styles.specificRoutineContainer}>
                             <Text style={styles.specificRoutineText}>
-                              {routine}
+                                {routine.nombre}
                             </Text>
                             <TouchableOpacity style={styles.routineButton} onPress={() => handleRoutineAccess(routine)}>
                                 <Text style={styles.routineButtonText}>

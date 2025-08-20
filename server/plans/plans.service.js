@@ -37,19 +37,21 @@ class PlansService {
         }
     }
 
-    async generateDates(numWeeks, routinesOfPlan) {
+    async insertInUserCalendar(numWeeks, routinesOfPlan, userId) {
         
         let today = new Date();
+        let routinesDates = [];
         
         for(let i = 0; i < numWeeks; i++){
             let baseDate = new Date(today)
-            baseDate.setDate(baseDate.getDate() + i * 7)
+            baseDate.setDate(baseDate.getDate() + i * 7);
 
             switch(routinesOfPlan.length) {
                 case 1:
                     const nextMonday_1 = this.getNextWeekday(baseDate, 1);
                     await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[0].id, nextMonday_1);
-
+                    
+                    routinesDates.push(nextMonday_1);
                     break;
 
                 case 2:
@@ -58,7 +60,8 @@ class PlansService {
 
                     await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[0].id, nextMonday_2);
                     await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[1].id, nextThursday);
-                    
+
+                    routinesDates.push(nextMonday_2, nextThursday);
                     break;
 
                 case 3:
@@ -69,7 +72,8 @@ class PlansService {
                     await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[0].id, nextMonday_3);
                     await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[1].id, nextWednesday);
                     await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[2].id, nextFriday);
-                    
+
+                    routinesDates.push(nextMonday_3, nextWednesday, nextFriday);
                     break;
 
                 default:
@@ -115,7 +119,7 @@ class PlansService {
 
     async getPlansOfUser(token){
         if (!token || token === 'null' || token === 'undefined') {
-            return { error: true, code: 401, message: "Sin sesión activa. No se obtendrán recompensas." };
+            return { statusCode: 401, message: "Sin sesión activa. No se obtendrán los planes de usuario." };
         }
 
         try {
@@ -173,8 +177,8 @@ class PlansService {
             // Insertar en el calendario
             const routinesOfPlan = await routinesRepository.findRoutinesByPlanId(plan_id);
             const numWeeks = basePlan.num_semanas;
-            const dates = this.generateDates(numWeeks, routinesOfPlan);
-    
+            const dates = this.insertInUserCalendar(numWeeks, routinesOfPlan, userId);
+
             for (const date of dates) {
                 await routinesRepository.insertRoutineInCalendar(userId, date);
             }
@@ -195,10 +199,10 @@ class PlansService {
 
             const userPlans = await planRepository.findPlansOfUser(userId);
             if(!userPlans){
-                return { statusCode: 400, message: 'El usuario no tiene un plan asignado.' };
+                return { statusCode: 404, message: 'El usuario no tiene un plan asignado.' };
             }
 
-            await routinesRepository.deleteUserRoutinesFromCalendar(userPlans.id);
+            await routinesRepository.deleteUserRoutinesFromCalendar(userId);
             await planRepository.deleteUserPlan(userPlans.id);
             return { statusCode: 204 };
 
