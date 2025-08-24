@@ -58,7 +58,7 @@ export default function RegisterMedicalScreen() {
     const handleRegistration = async() => {
         try{
             setSpinnerIsVisible(true);
-            
+
             const response = await fetch('http://localhost:3000/register/medical', {
                 method: 'POST',
                 headers: {
@@ -80,7 +80,7 @@ export default function RegisterMedicalScreen() {
 
             const data = await response.json()
             console.log('Usuario registrado: ', data)
-            router.push('/') // Ahora debería funcionar correctamente
+            router.push('/')
         } catch(error){
             console.error('Error durante el registro de datos médicos: ', error)
             Alert.alert('Error registrando datos médicos')
@@ -91,7 +91,7 @@ export default function RegisterMedicalScreen() {
 
     if(spinnerIsVisible) {
         <View>
-            <Pulse 
+            <Pulse
                 color="#d1821cff"
                 numPulses={3}
                 diameter={100}
@@ -222,7 +222,7 @@ export default function RegisterMedicalScreen() {
         );
     }
 
-    
+
 };
 
 const styles = StyleSheet.create({

@@ -108,8 +108,16 @@ class RegisterService {
 
             console.log("SpecificRewards", specificRewards)
             for(let reward of specificRewards.message){
-                userReward = await rewardsService.createUserReward(newUser.id, reward.logro_id, "especifico");
-                insertedRewards.push(userReward);
+
+                // Insertar logros dentro del rango de edad
+                const currentDate = new Date();
+                const birthDate = createdUser.fecha_nacimiento;
+                let age = currentDate.getFullYear() - birthDate.getFullYear();
+
+                if (age > reward.edad_minima && age < reward.edad_maxima) {
+                    userReward = await rewardsService.createUserReward(newUser.id, reward.logro_id, "especifico");
+                    insertedRewards.push(userReward);
+                }
             }
 
             // Crear un registro en el historial

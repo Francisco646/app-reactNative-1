@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image} from 'react-native';
+import {View, Text, StyleSheet, Image, ScrollView} from 'react-native';
 import {useLocalSearchParams} from "expo-router";
 
 /* Mostrar los datos sobre una actividad específica de un plan */
@@ -11,28 +11,54 @@ export default function ActivityDetailScreen() {
         ? JSON.parse(Array.isArray(activitiesData) ? activitiesData[0]: activitiesData)
         : [];
 
+    const activityImage = require('../../assets/images/image_1296698.png');
+
     return(
-        <View style={styles.container}>
-            <View style={styles.titleContainer}>
+        <ScrollView style={styles.container}>
+            <View style={styles.header}>
                 <Text style={styles.titleText}>{activitiesDataAdapted.nombre}</Text>
+                <Text style={styles.activityType}>{activitiesDataAdapted.tipo_actividad}</Text>
             </View>
-            <View style={styles.topImageContainer}>
-                <Image style={styles.topImageImage} source={require('../../assets/images/image_1296698.png')} resizeMode="contain" />
+
+            <View style={styles.card}>
+                <View style={styles.imageContainer}>
+                    <Image
+                        style={styles.activityImage}
+                        source={activityImage}
+                        resizeMode="contain"
+                    />
+                </View>
+
+                <View style={styles.detailsContainer}>
+                    {activitiesDataAdapted.numero_series > 0 && (
+                        <View style={styles.detailBox}>
+                            <Text style={styles.detailLabel}>Series</Text>
+                            <Text style={styles.detailValue}>{activitiesDataAdapted.numero_series}</Text>
+                        </View>
+                    )}
+                    {activitiesDataAdapted.numero_repeticiones > 0 && (
+                        <View style={styles.detailBox}>
+                            <Text style={styles.detailLabel}>Repeticiones</Text>
+                            <Text style={styles.detailValue}>{activitiesDataAdapted.numero_repeticiones}</Text>
+                        </View>
+                    )}
+                    {activitiesDataAdapted.duracion_minutos > 0 && (
+                        <View style={styles.detailBox}>
+                            <Text style={styles.detailLabel}>Duración</Text>
+                            <Text style={styles.detailValue}>{activitiesDataAdapted.duracion_minutos} min</Text>
+                        </View>
+                    )}
+                </View>
             </View>
-            <View>
-                <Text style={styles.activityKeyPointsTitle}>
-                    Descripción de la actividad:
-                    {activitiesDataAdapted.descripcion}
+
+            <View style={styles.descriptionContainer}>
+                <Text style={styles.sectionTitle}>Descripción</Text>
+                <Text style={styles.descriptionText}>
+                    {activitiesDataAdapted.descripcion || 'No hay descripción disponible para esta actividad.'}
                 </Text>
             </View>
-            <View style={styles.activityDescriptionContainer}>
-                <Text style={styles.activityDescriptionText}>
-                     -- Número de series: {activitiesDataAdapted.numero_series}
-                     -- Número de repeticiones (si procede): {activitiesDataAdapted.numero_repeticiones}
-                     -- Duración (en minutos, si procede): {activitiesDataAdapted.duracion_minutos}
-                </Text>
-            </View>
-        </View>
+
+        </ScrollView>
 
     );
 }
@@ -40,57 +66,98 @@ export default function ActivityDetailScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#f5f5f5',
+        padding: 15,
     },
-    titleContainer:{
-        margin: 20,
+    header: {
         alignItems: 'center',
+        marginVertical: 20,
     },
     titleText: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
-        color: '#000000',
+        color: '#333',
+        textAlign: 'center',
     },
-    topImageContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginVertical: 10,
+    activityType: {
+        fontSize: 16,
+        color: '#01b888',
+        fontWeight: 'bold',
+        marginTop: 5,
+        textTransform: 'uppercase',
+    },
+    card: {
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    imageContainer: {
         width: '100%',
-        height: 75,
+        height: 200,
+        borderRadius: 15,
+        overflow: 'hidden',
+        marginBottom: 20,
     },
-    topImageImage: {
+    activityImage: {
         width: '100%',
         height: '100%',
-        alignSelf: 'center',
+    },
+    detailsContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        alignItems: 'center',
+        marginBottom: 20,
+    },
+    detailBox: {
+        alignItems: 'center',
+        backgroundColor: '#f0f0f0',
         padding: 10,
+        borderRadius: 10,
+        minWidth: 90,
     },
-    activityKeyPointsContainer: {
-        justifyContent: 'center',
-        alignItems: 'flex-start',
+    detailLabel: {
+        fontSize: 14,
+        color: '#666',
+        textTransform: 'uppercase',
     },
-    activityKeyPointsTitle: {
-        fontSize: 24,
-        color: '#000000',
-        marginVertical: 15,
+    detailValue: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+        marginTop: 5,
     },
-    activityKeyPointsText: {
+    descriptionContainer: {
+        backgroundColor: '#fff',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 5,
+    },
+    sectionTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 10,
+    },
+    descriptionText: {
         fontSize: 16,
-        color: '#000000',
-        marginVertical: 10,
+        color: '#666',
+        lineHeight: 24,
     },
-    activityDescriptionContainer: {
-        fontSize: 24,
-        color: '#000000',
-        marginVertical: 15,
-    },
-    activityDescriptionTitle: {
-        fontSize: 24,
-        color: '#000000',
-        marginVertical: 15,
-    },
-    activityDescriptionText: {
-        fontSize: 16,
-        color: '#000000',
-        marginVertical: 10,
+    errorText: {
+        fontSize: 18,
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 50,
     },
 });

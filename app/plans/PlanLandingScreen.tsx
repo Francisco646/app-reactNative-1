@@ -109,49 +109,48 @@ export default function PlanLandingScreen() {
     } else {
         return(
             <ScrollView style={styles.container}>
-                <View style={styles.titleContainer}>
-                    <Text style={styles.titleText}>Planes</Text>
+                <View style={styles.header}>
+                    <Text style={styles.titleText}>Elige tu Aventura</Text>
+                    <Text style={styles.subtitleText}>Selecciona un plan para empezar a jugar</Text>
                 </View>
-                <View style={styles.planFilterContainer}>
-                    <Text style={styles.planFilterTitle}>Listado de filtros</Text>
-                    <View style={styles.planFilterSubContainer}>
-                        <Text style={styles.planFilterSubContainerText}>Filtro 1</Text>
-                        <Text style={styles.planFilterSubContainerText}>Filtro 2</Text>
-                        <Text style={styles.planFilterSubContainerText}>Filtro 3</Text>
+
+                <View style={styles.filterSection}>
+                    <Text style={styles.filterTitle}>Filtrar planes</Text>
+                    <View style={styles.filterContainer}>
+                        <TouchableOpacity style={styles.filterButton}>
+                            <Text style={styles.filterButtonText}>Filtro 1</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.filterButton}>
+                            <Text style={styles.filterButtonText}>Filtro 2</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.filterButton}>
+                            <Text style={styles.filterButtonText}>Filtro 3</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
-                <View style={styles.planListContainer}>
-                    <Text style={styles.planListTitle}>Todos los planes</Text>
-                    { /* @ts-ignore */ }
-                    {allPlansArray.map((plan) => (
-                        // eslint-disable-next-line react/jsx-key
-                        <View style={styles.planListSubContainer}>
-                            <TouchableOpacity key={plan.id}>
-                                <Text>{plan.nombre}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.planListSubContainerButton} onPress={() => handleRoutinesAccess(plan)} >
-                                <Text style={styles.planListSubContainerButtonText}>Ver Plan</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
 
+                <View style={styles.planListContainer}>
+                    <Text style={styles.planListTitle}>Planes Disponibles</Text>
                     { /* @ts-ignore */ }
-                    {userHasActivePlan ? (
-                    <>
-                        <Text style={styles.planListTitle}>Plan del usuario</Text>
-                        <View style={styles.planListSubContainer}>
-                            <TouchableOpacity>
-                                <Text>{userPlansDataObj.nombre}</Text>
-                            </TouchableOpacity>
+                    {allPlansArray.map((plan) => {
+                        const isActive = userHasActivePlan && plan.id === userPlansDataObj.id;
+                        return (
                             <TouchableOpacity
-                                style={styles.planListSubContainerButton}
-                                onPress={() => handleRoutinesAccess(userPlansDataObj)}
+                                key={plan.id}
+                                style={[styles.planCard, isActive && styles.activePlanCard]}
+                                onPress={() => handleRoutinesAccess(plan)}
                             >
-                                <Text style={styles.planListSubContainerButtonText}>Ver Plan</Text>
+                                <View style={styles.planCardContent}>
+                                    <Text style={styles.planName}>{plan.nombre}</Text>
+                                    {isActive && (
+                                        <View style={styles.badge}>
+                                            <Text style={styles.badgeText}>ACTIVO</Text>
+                                        </View>
+                                    )}
+                                </View>
                             </TouchableOpacity>
-                        </View>
-                    </>
-                    ) : null}
+                        );
+                    })}
                 </View>
             </ScrollView>
         )
@@ -163,74 +162,101 @@ export default function PlanLandingScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#f5f5f5', // Color de fondo más suave
+        padding: 15,
     },
-    titleContainer: {
-        margin: 20,
-        alignItems: 'center',
-        flexDirection: 'row',
+    spinnerContainer: {
+        flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+    },
+    header: {
+        alignItems: 'center',
+        marginVertical: 20,
     },
     titleText: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
-        color: '#000000',
-        textAlign: 'center',
-        flex: 1,
+        color: '#333',
     },
-    planFilterContainer: {
-        padding: 20,
-        backgroundColor: '#ffffff',
-        borderRadius: 15,
-        marginVertical: 10,
-        alignItems: 'center',
+    subtitleText: {
+        fontSize: 16,
+        color: '#666',
+        marginTop: 5,
     },
-    planFilterTitle: {
-        fontSize: 20,
+    filterSection: {
+        marginBottom: 20,
+    },
+    filterTitle: {
+        fontSize: 18,
         fontWeight: 'bold',
-        color: '#000000',
+        color: '#333',
         marginBottom: 10,
     },
-    planFilterSubContainer: {
-        padding: 10,
-        backgroundColor: '#26a2fa',
-        borderRadius: 15,
-        marginVertical: 10,
-        width: '100%',
-        alignItems: 'center',
+    filterContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
     },
-    planFilterSubContainerText: {
-        fontSize: 16,
-        color: '#000000',
-        marginVertical: 5,
+    filterButton: {
+        backgroundColor: '#e0e0e0',
+        borderRadius: 20,
+        paddingHorizontal: 15,
+        paddingVertical: 8,
+    },
+    filterButtonText: {
+        color: '#666',
+        fontWeight: 'bold',
     },
     planListContainer: {
-        padding: 20,
-        backgroundColor: '#ffffff',
-        borderRadius: 15,
-        marginVertical: 10,
-        height: '100%',
+        marginBottom: 20,
     },
     planListTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#000000',
+        color: '#333',
         marginBottom: 10,
     },
-    planListSubContainer: {
-        padding: 10,
-        backgroundColor: '#26a2fa',
+    planCard: {
+        backgroundColor: '#fff',
         borderRadius: 15,
-        marginVertical: 10,
+        padding: 20,
+        marginVertical: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
+        borderWidth: 2,
+        borderColor: 'transparent',
     },
-    planListSubContainerButton: {
-        padding: 10,
+    activePlanCard: {
+        borderColor: '#01b888', // Borde verde para el plan activo
+    },
+    planCardContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    planName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    planDescription: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 5,
+    },
+    badge: {
         backgroundColor: '#01b888',
-        borderRadius: 15,
-        marginVertical: 5,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
     },
-    planListSubContainerButtonText: {
-        fontSize: 16,
-        color: '#000000',
+    badgeText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        fontSize: 12,
     },
 });

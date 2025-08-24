@@ -11,6 +11,17 @@ import {
 
 const Pulse = require('react-native-pulse').default;
 
+// @ts-ignore
+const ProgressBar = ({ percentage }) => {
+  const progressWidth = Math.min(Math.max(percentage, 0), 100);
+
+  return (
+      <View style={progressBarStyles.container}>
+        <View style={[progressBarStyles.progressBar, { width: `${progressWidth}%` }]} />
+      </View>
+  );
+};
+
 export default function RewardsLandingScreen() {
 
   const rawParams = useLocalSearchParams();
@@ -48,7 +59,7 @@ export default function RewardsLandingScreen() {
       });
 
       if(response.status === 200) {
-        manageResponse(response, 'general')
+        await manageResponse(response, 'general')
       }
 
     } catch(error){
@@ -71,7 +82,7 @@ export default function RewardsLandingScreen() {
       });
 
       if(response.status === 200) {
-        manageResponse(response, 'especifica')
+        await manageResponse(response, 'especifica')
       }
 
     } catch(error){
@@ -128,7 +139,7 @@ export default function RewardsLandingScreen() {
 
   if(spinnerIsVisible) {
     <View>
-        <Pulse 
+        <Pulse
             color="#d1821cff"
             numPulses={3}
             diameter={100}
@@ -139,46 +150,51 @@ export default function RewardsLandingScreen() {
     return (
       <ScrollView style={styles.container}>
         <View style={styles.topContainer}>
-            <TouchableOpacity style={styles.menuButton}>
-                <Text style={{ fontSize: 28, color: '#00a69a' }}>&#9776;</Text>
-            </TouchableOpacity>
-            <Text style={styles.topContainerTitle}>Logros</Text>
-            <TouchableOpacity >
-                <Image
-                    source={require('../../assets/images/settings.png')}
-                    style={styles.topContainerSettingsIcon}
-                />
-            </TouchableOpacity>
+          <Image
+              source={require('../../assets/images/image_1296698.png')}
+              style={styles.headerIcon}
+          />
+          <Text style={styles.topContainerTitle}>Logros</Text>
+          <Image
+              source={require('../../assets/images/settings.png')}
+              style={styles.headerIcon}
+          />
         </View>
+
         <View style={styles.mainContainer}>
-            <View style={styles.rewardsSubContainer}>
-              <Text style={styles.rewardSubContainerTitle}>Logros Generales</Text>
-              <Text style={styles.rewardSubContainerSubtitle}>Completados: {numOfCompletedGeneralRewards} / {numOfTotalGeneralRewards} </Text>
-              <Text style={styles.rewardSubContainerSubtitle}>{generalCompletedPercentage} %</Text>
-              <TouchableOpacity
-                  style={styles.rewardSubContainerButton}
-                  onPress={() => handleGeneralRewards()}
-              >
-                  <Text style={styles.rewardSubContainerButtonText}>Visualizar</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.rewardsSubContainer}>
-              <Text style={styles.rewardSubContainerTitle}>Logros Específicos</Text>
-              <Text style={styles.rewardSubContainerSubtitle}>Completados: {numOfCompletedSpecificRewards} / {numOfTotalSpecificRewards} </Text>
-              <Text style={styles.rewardSubContainerSubtitle}>{specificCompletedPercentage} %</Text>
-              <TouchableOpacity
-                  style={styles.rewardSubContainerButton}
-                  onPress={() => handleSpecificRewards()}
-              >
-                  <Text style={styles.rewardSubContainerButtonText}>Visualizar</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.rewardsCard}>
+            <Text style={styles.rewardTitle}>Logros Generales</Text>
+            <Text style={styles.rewardSubtitle}>
+              Completados: {numOfCompletedGeneralRewards} / {numOfTotalGeneralRewards}
+            </Text>
+            <ProgressBar percentage={generalCompletedPercentage} />
+            <TouchableOpacity
+                style={styles.rewardButton}
+                onPress={handleGeneralRewards}
+            >
+              <Text style={styles.rewardButtonText}>Ver mis logros</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.rewardsCard}>
+            <Text style={styles.rewardTitle}>Logros Específicos</Text>
+            <Text style={styles.rewardSubtitle}>
+              Completados: {numOfCompletedSpecificRewards} / {numOfTotalSpecificRewards}
+            </Text>
+            <ProgressBar percentage={specificCompletedPercentage} />
+            <TouchableOpacity
+                style={styles.rewardButton}
+                onPress={handleSpecificRewards}
+            >
+              <Text style={styles.rewardButtonText}>Ver mis logros</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </ScrollView>
     );
   }
 
-  
+
 };
 
 const styles = StyleSheet.create({
@@ -186,105 +202,101 @@ const styles = StyleSheet.create({
     backgroundColor: '#e3f6fd',
     flex: 1,
   },
-  topContainer: {
+  spinnerContainer: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#e3f6fd',
+  },
+  topContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
-    height: 70,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    height: 100,
     backgroundColor: '#a7faa3',
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    elevation: 6,
+    borderBottomLeftRadius: 25,
+    borderBottomRightRadius: 25,
+    elevation: 8,
     shadowColor: '#00a69a',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
   },
   topContainerTitle: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#1a1a1a',
-    textAlign: 'center',
-    flex: 1,
-    letterSpacing: 1,
+    letterSpacing: 1.2,
   },
-  topContainerSettingsIcon: {
-    width: 34,
-    height: 34,
-    marginRight: 8,
+  headerIcon: {
+    width: 38,
+    height: 38,
     tintColor: '#00a69a',
   },
   mainContainer: {
-    justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: 30,
     flex: 1,
-    width: '100%',
-    marginTop: 30,
   },
-  rewardsSubContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  rewardsCard: {
     backgroundColor: '#fff',
-    marginTop: 30,
     padding: 24,
     borderRadius: 22,
     width: '85%',
-    shadowColor: '#00a69a',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.13,
-    shadowRadius: 7,
-    elevation: 5,
-    marginBottom: 18,
+    shadowColor: '#0032fa',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+    marginBottom: 25,
+    alignItems: 'center',
   },
-  rewardSubContainerButton: {
+  rewardTitle: {
+    fontSize: 22,
+    color: '#00a69a',
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  rewardSubtitle: {
+    fontSize: 16,
+    color: '#0032fa',
+    marginBottom: 4,
+    fontWeight: '600',
+  },
+  rewardButton: {
     paddingVertical: 14,
     paddingHorizontal: 36,
     borderRadius: 10,
-    margin: 10,
+    marginTop: 15,
     backgroundColor: '#13acff',
     shadowColor: '#0032fa',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.18,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 5,
+    elevation: 4,
     width: '100%',
   },
-  rewardSubContainerButtonText: {
+  rewardButtonText: {
     fontSize: 18,
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
     letterSpacing: 0.5,
   },
-  rewardSubContainerTitle: {
-    fontSize: 22,
-    color: '#00a69a',
-    fontWeight: 'bold',
-    marginBottom: 6,
-    textAlign: 'center',
-  },
-  rewardSubContainerSubtitle: {
-    fontSize: 16,
-    color: '#0032fa',
-    marginBottom: 4,
-    textAlign: 'center',
-    fontWeight: '600',
-  },
+});
 
-  menuButton: {
-    padding: 10,
-    backgroundColor: '#f0f0f0',
-    marginBottom: 20,
+const progressBarStyles = StyleSheet.create({
+  container: {
+    height: 12,
+    width: '90%',
+    backgroundColor: '#e0e0e0',
+    borderRadius: 6,
+    overflow: 'hidden',
+    marginVertical: 10,
   },
-  drawerContent: {
-    flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
-  },
-  menuItem: {
-    padding: 15,
-    fontSize: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+  progressBar: {
+    height: '100%',
+    backgroundColor: '#01b888',
   },
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, Image, TouchableOpacity, Alert} from 'react-native';
+import {View, Text, StyleSheet, Image, TouchableOpacity, Alert, ScrollView} from 'react-native';
 import {router, useLocalSearchParams} from "expo-router";
 
 const Pulse = require('react-native-pulse').default;
@@ -95,89 +95,194 @@ export default function RoutineDetailScreen() {
         );
     } else {
         return(
-            <View style={styles.container}>
-                <View style={styles.titleContainer}>
+            <ScrollView style={styles.container}>
+                <View style={styles.header}>
                     <Text style={styles.titleText}>{routineDataAdapted.nombre}</Text>
                     <Text style={styles.subTitleText}>{routineDataAdapted.descripcion}</Text>
-                    <Text style={styles.subTitleText}>Numero de ejercicios: {routineDataAdapted.numero_ejercicios}</Text>
                 </View>
-                <View style={styles.buttonContainer}>
+
+                <View style={styles.startButtonSection}>
                     {isPlanActive ? (
-                        <TouchableOpacity style={styles.buttonAccess} onPress={() => handleActivityStart()}>
-                            <Text style={styles.buttonText}>Iniciar rutina</Text>
+                        <TouchableOpacity
+                            style={styles.startButton}
+                            onPress={() => handleActivityStart()}
+                        >
+                            <Text style={styles.startButtonText}>¡Comenzar Misión!</Text>
                         </TouchableOpacity>
                     ) : (
-                        <Text></Text>
+                        <Text style={styles.infoText}>
+                            Activa este plan para comenzar esta rutina.
+                        </Text>
                     )}
                 </View>
-                <View style={styles.routineActivitiesContainer}>
-                    <Text style={styles.routineActivitiesTitle}>Actividades de la Rutina</Text>
-                    { /* @ts-ignore */}
-                    {activitiesDataAdapted.map((activity) => (
-                        // eslint-disable-next-line react/jsx-key
-                        <View style={styles.routineActivitiesSubContainer}>
-                            <Text>{activity.nombre}</Text>
-                            <Text>{activity.tipo_actividad}</Text>
-                            <Text>{activity.numero_series} {activity.numero_repeticiones} {activity.duracion_minutos}</Text>
-                            <TouchableOpacity style={styles.buttonAccess} onPress={() => handleActivityAccess(activity)}>
-                                <Text style={styles.buttonText}>Ver actividad</Text>
-                            </TouchableOpacity>
-                        </View>
+
+                <View style={styles.activitiesSection}>
+                    <Text style={styles.sectionTitle}>
+                        Actividades ({activitiesDataAdapted.length})
+                    </Text>
+                    {/* @ts-ignore */}
+                    {activitiesDataAdapted.map((activity, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.activityCard}
+                            onPress={() => handleActivityAccess(activity)}
+                        >
+                            <View style={styles.cardHeader}>
+                                <Text style={styles.activityName}>{activity.nombre}</Text>
+                                {/* Un placeholder para un ícono de actividad */}
+                                <View style={styles.activityIconPlaceholder}>
+                                    <Text style={styles.activityIconText}>
+                                        {activity.tipo_actividad?.slice(0, 1).toUpperCase() || 'A'}
+                                    </Text>
+                                </View>
+                            </View>
+                            <View style={styles.cardDetails}>
+                                {activity.numero_series > 0 && (
+                                    <Text style={styles.detailText}>
+                                        <Text style={styles.detailLabel}>Series:</Text> {activity.numero_series}
+                                    </Text>
+                                )}
+                                {activity.numero_repeticiones > 0 && (
+                                    <Text style={styles.detailText}>
+                                        <Text style={styles.detailLabel}>Repeticiones:</Text> {activity.numero_repeticiones}
+                                    </Text>
+                                )}
+                                {activity.duracion_minutos > 0 && (
+                                    <Text style={styles.detailText}>
+                                        <Text style={styles.detailLabel}>Duración:</Text> {activity.duracion_minutos} min
+                                    </Text>
+                                )}
+                            </View>
+                            <View style={styles.cardButton}>
+                                <Text style={styles.cardButtonText}>Ver Detalles</Text>
+                            </View>
+                        </TouchableOpacity>
                     ))}
                 </View>
-            </View>
+            </ScrollView>
         );
     }
-
-
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: '#f5f5f5',
+        padding: 15,
     },
-    titleContainer:{
-        margin: 20,
+    spinnerContainer: {
+        flex: 1,
+        justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: '#f5f5f5',
+    },
+    header: {
+        alignItems: 'center',
+        marginVertical: 20,
     },
     titleText: {
-        fontSize: 24,
+        fontSize: 28,
         fontWeight: 'bold',
-        color: '#000000',
+        color: '#333',
+        textAlign: 'center',
     },
     subTitleText: {
-        fontSize: 20,
-        color: '#000000'
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        marginTop: 5,
     },
-    routineActivitiesContainer: {
-        flex: 1,
-        padding: 20,
-        backgroundColor: '#ffffff',
+    startButtonSection: {
+        alignItems: 'center',
+        marginVertical: 20,
     },
-    routineActivitiesTitle: {
-        fontSize: 24,
-        color: '#000000',
-        marginVertical: 15,
-    },
-    routineActivitiesSubContainer: {
-        padding: 10,
-        backgroundColor: '#26a2fa',
-        borderRadius: 15,
-        marginVertical: 10,
-    },
-    buttonContainer: {
-        marginTop: 20,
-    },
-    buttonAccess: {
+    startButton: {
         backgroundColor: '#01b888',
-        padding: 15,
+        paddingVertical: 20,
+        paddingHorizontal: 40,
+        borderRadius: 15,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
+        elevation: 8,
+    },
+    startButtonText: {
+        color: '#fff',
+        fontSize: 20,
+        fontWeight: 'bold',
+    },
+    infoText: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+    },
+    activitiesSection: {
+        marginBottom: 20,
+    },
+    sectionTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 15,
+    },
+    activityCard: {
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        padding: 20,
+        marginVertical: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 3,
+        borderLeftWidth: 5,
+        borderLeftColor: '#26a2fa',
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 10,
+    },
+    activityName: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    activityIconPlaceholder: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#f0f0f0',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    activityIconText: {
+        color: '#666',
+        fontWeight: 'bold',
+        fontSize: 18,
+    },
+    cardDetails: {
+        marginBottom: 15,
+    },
+    detailText: {
+        fontSize: 14,
+        color: '#666',
+        marginVertical: 2,
+    },
+    detailLabel: {
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    cardButton: {
+        backgroundColor: '#01b888',
+        paddingVertical: 10,
         borderRadius: 10,
         alignItems: 'center',
     },
-    buttonText: {
-        color: '#ffffff',
-        fontSize: 16,
+    cardButtonText: {
+        color: '#fff',
         fontWeight: 'bold',
     },
 });

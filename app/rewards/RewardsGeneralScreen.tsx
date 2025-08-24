@@ -9,6 +9,8 @@ import {
   View
 } from 'react-native';
 
+import RewardList from '../RewardList';
+
 export default function RewardGeneralScreen() {
 
     const image = require('../../assets/images/image_1296698.png'); // Example image
@@ -19,69 +21,53 @@ export default function RewardGeneralScreen() {
     const rewardsCompleted = typeof listCompleted === 'string' ? listCompleted.split(',') : listCompleted;
 
     return (
-        <ScrollView style={styles.container}>
+        <View style={styles.container}>
             <View style={styles.topContainer}>
+                <Image
+                    source={require('../../assets/images/image_1296698.png')}
+                    style={styles.topContainerTrophy}
+                />
                 <Text style={styles.topContainerTitle}>Logros Generales</Text>
-                <TouchableOpacity>
-                    <Image
-                        source={require('../../assets/images/settings.png')}
-                        style={styles.topContainerSettingsIcon}
-                    />
-                </TouchableOpacity>
             </View>
-            <View>
-
-                {rewardsTitle.map((title, index) => (
-                <View key={index} style={styles.rewardContainer}>
-                    <View>
-                        <Text style={{color: '#fff', fontSize: 18, fontWeight: 'bold'}}>{title}</Text>
-                        <Text style={{color: '#fff', marginTop: 5}}>{rewardsDescription[index]}</Text>
-                        <Text style={{color: '#fff', marginTop: 5}}>
-                            {rewardsCompleted[index] ? "Completado" : "Pendiente"}
-                        </Text>
-                    </View>
-                    <Image source={image} style={styles.rewardImage} resizeMode="contain" />
-                </View>
-                ))}
-            </View>
-        </ScrollView>
+            <RewardList
+                rewardsTitle={rewardsTitle}
+                rewardsDescription={rewardsDescription}
+                rewardsCompleted={rewardsCompleted}
+            />
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-  },
-  topContainer: {
-    margin: 20,
-    flexDirection: 'row',
-  },
-  topContainerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#00a69a',
-    flex: 1,
-    textAlign: 'center',
-  },
-  topContainerSettingsIcon: {
-    width: 30,
-    height: 30,
-    marginLeft: 10,
-    tintColor: '#00a69a',
-  },
-  rewardContainer:{
-    backgroundColor: '#007b97',
-    padding: 20,
-    borderRadius: 15,
-    marginVertical: 10,
-    marginHorizontal: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  rewardImage: {
-    width: 50,
-    height: 50,
-  }
-})
+    container: {
+        flex: 1,
+        backgroundColor: '#f5f5f5',
+    },
+    topContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 25,
+        backgroundColor: '#a7faa3',
+        borderBottomLeftRadius: 25,
+        borderBottomRightRadius: 25,
+        elevation: 8,
+        shadowColor: '#00a69a',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+        marginBottom: 20,
+    },
+    topContainerTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#1a1a1a',
+        textAlign: 'center',
+        marginLeft: 10,
+    },
+    topContainerTrophy: {
+        width: 32,
+        height: 32,
+        tintColor: '#00a69a',
+    },
+});
