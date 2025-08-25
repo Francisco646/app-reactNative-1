@@ -1,5 +1,6 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View, Image } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import DailyTrackerCard from './rewards/DailyTrackerCard';
 
 // @ts-ignore
 const RewardStatusBadge = ({ isCompleted }) => (
@@ -9,25 +10,41 @@ const RewardStatusBadge = ({ isCompleted }) => (
 );
 
 // @ts-ignore
-export default function RewardList({ rewardsTitle, rewardsDescription, rewardsCompleted }) {
+export default function RewardList({ rewards }) {
     return (
         <ScrollView contentContainerStyle={styles.rewardsListContainer}>
-            { /* @ts-ignore */ }
-            {rewardsTitle.map((title, index) => (
-                <View
-                    key={index}
-                    style={[
-                        styles.rewardCard,
-                        rewardsCompleted[index] === 'true' ? styles.cardCompleted : styles.cardPending
-                    ]}
-                >
-                    <View style={styles.rewardContent}>
-                        <Text style={styles.rewardTitle}>{title}</Text>
-                        <Text style={styles.rewardDescription}>{rewardsDescription[index]}</Text>
-                    </View>
-                    <RewardStatusBadge isCompleted={rewardsCompleted[index] === 'true'} />
-                </View>
-            ))}
+            {/* @ts-ignore */}
+            {rewards.map((reward) => {
+                // Aquellos logros que no pueden obtenerse realizando planes, rutinas, actividades (ej: dormir 8 horas, beber dos litros diarios, etc.)
+                if (!reward.logro_fisico) {
+                    return (
+                        <DailyTrackerCard
+                            key={reward.id}
+                            id={reward.id}
+                            title={reward.nombre}
+                            description={reward.detalles}
+                            totalDays={reward.progreso_necesario}
+                            isCompleted={reward.completado}
+                        />
+                    );
+                } else {
+                    return (
+                        <View
+                            key={reward.id}
+                            style={[
+                                styles.rewardCard,
+                                reward.completado ? styles.cardCompleted : styles.cardPending
+                            ]}
+                        >
+                            <View style={styles.rewardContent}>
+                                <Text style={styles.rewardTitle}>{reward.nombre}</Text>
+                                <Text style={styles.rewardDescription}>{reward.detalles}</Text>
+                            </View>
+                            <RewardStatusBadge isCompleted={reward.completado} />
+                        </View>
+                    );
+                }
+            })}
         </ScrollView>
     );
 }

@@ -29,6 +29,27 @@ class RewardController {
         res.status(data.statusCode).json(data.message)
     }
 
+    async getUserReward(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const rewardId = req.params.id;
+        const data = await rewardService.getUserReward(token, rewardId);
+        res.status(data.statusCode).json(data.message);
+    }
+
+    async updateRewardProgress(req, res){
+        const token = req.headers.authorization?.split(' ')[1];
+        const rewardId = req.params.id;
+        const data = await rewardService.updateRewardProgress(token, rewardId);
+        res.status(data.statusCode).json(data.message);
+    }
+
+    async updateRewardCompleted(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const rewardId = req.params.id;
+        const data = await rewardService.updateRewardCompleted(token, rewardId);
+        res.status(data.statusCode).json(data.message);
+    }
+
 }
 
 const rewardController = new RewardController(rewardService)

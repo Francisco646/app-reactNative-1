@@ -46,99 +46,93 @@ export default function RewardsLandingScreen() {
   const generalCompletedPercentage = generalCompleted * 100;
   const specificCompletedPercentage = specificCompleted * 100;
 
-  const handleGeneralRewards = async () => {
-    try{
-      setSpinnerIsVisible(true);
-      const token = await AsyncStorage.getItem('userToken');
+  // @ts-ignore
+  const handleGeneralRewardsAccess = async () => { 
+    try {
+        setSpinnerIsVisible(true);
+        const token = await AsyncStorage.getItem('userToken');
+        const response = await fetch(`http://localhost:3000/reward/general`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` }
+        });
 
-      const response = await fetch('http://localhost:3000/reward/general', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`
+        console.log('Response status:', response);
+        if (response.status === 200) {
+            await manageResponse(response, 'general');
         }
-      });
-
-      if(response.status === 200) {
-        await manageResponse(response, 'general')
-      }
-
-    } catch(error){
-      Alert.alert('Se ha producido un error intentando obtener los logros generales');
+    } catch (error) {
+        Alert.alert(`Se ha producido un error intentando obtener los logros generales`);
     } finally {
-      setSpinnerIsVisible(false);
+        setSpinnerIsVisible(false);
     }
-  }
+}
 
-  const handleSpecificRewards = async () => {
-    try{
-      setSpinnerIsVisible(true);
-      const token = await AsyncStorage.getItem('userToken');
+// @ts-ignore
+  const handleSpecificRewardsAccess = async () => { 
+    try {
+        setSpinnerIsVisible(true);
+        const token = await AsyncStorage.getItem('userToken');
+        const response = await fetch(`http://localhost:3000/reward/specific`, {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${token}` }
+        });
 
-      const response = await fetch('http://localhost:3000/reward/specific', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`
+        console.log('Response status:', response);
+        if (response.status === 200) {
+            await manageResponse(response, 'specific');
         }
-      });
-
-      if(response.status === 200) {
-        await manageResponse(response, 'especifica')
-      }
-
-    } catch(error){
-      Alert.alert('Se ha producido un error intentando obtener los logros especificos');
+    } catch (error) {
+        Alert.alert(`Se ha producido un error intentando obtener los logros específicos`);
     } finally {
-      setSpinnerIsVisible(false);
+        setSpinnerIsVisible(false);
     }
-  }
+}
 
   // @ts-ignore
   const manageResponse = async (response, screen) => {
-    const data = await response.json();
-    console.log('Response data:', data);
+      const data = await response.json();
+      console.log('Response data:', data);
 
-    const listNames = [];
-    for(let rewards of data.commonData) {
-      const reward = rewards[0];
-      const rewardName = reward.nombre;
-      listNames.push(rewardName);
-    }
-    console.log('List of names:', listNames);
+      const commonData = Array.isArray(data.commonData) ? data.commonData.flat() : [];
+      const userData = Array.isArray(data.userRewardData) ? data.userRewardData.flat() : [];
 
-    const listDetails = [];
-    for(let rewards of data.commonData) {
-      const reward = rewards[0];
-      const rewardDetails = reward.detalles;
-      listDetails.push(rewardDetails);
-    }
-    console.log('List of details:', listDetails);
+      // Combina los datos en un solo array de objetos
+      // @ts-ignore
+      const combinedRewards = commonData.map((common, index) => {
+          const user = userData[index] || {};
 
-    const listCompleted = [];
-    for(let reward of data.userRewardData) {
-      const rewardCompleted = reward.completado;
-      listCompleted.push(rewardCompleted);
-    }
-    console.log('List of completed:', listCompleted);
+          console.log('Common Data:', common);
+          console.log('User Data:', user);
 
-    let pathname;
-    if(screen === 'general'){
-      pathname = '/rewards/RewardsGeneralScreen';
-    } else {
-      pathname = '/rewards/RewardsSpecificScreen';
-    }
+          return {
+              id: common.id, 
+              nombre: common.nombre,
+              detalles: common.detalles,
+              completado: user.completado,
+              logro_fisico: common.logro_fisico,
+              progreso_necesario: user.progreso_necesario
+          };
+      });
 
-    // @ts-ignore
-    router.push({ pathname: pathname,
-      params: {
-        listNames: listNames,
-        listDetails: listDetails,
-        listCompleted: listCompleted
+      let pathname: "/rewards/RewardsGeneralScreen" | "/rewards/RewardsSpecificScreen";
+      if (screen === 'general') {
+          pathname = "/rewards/RewardsGeneralScreen";
+      } else {
+          pathname = "/rewards/RewardsSpecificScreen";
       }
-    });
+
+      router.push({
+          pathname,
+          params: {
+              // Convierte el array completo a una cadena JSON
+              rewards: JSON.stringify(combinedRewards)
+          }
+      });
   }
 
   if(spinnerIsVisible) {
-    <View>
+    return(
+      <View>
         <Pulse
             color="#d1821cff"
             numPulses={3}
@@ -146,6 +140,7 @@ export default function RewardsLandingScreen() {
             speed={1}
         />
     </View>
+    )
   } else {
     return (
       <ScrollView style={styles.container}>
@@ -170,7 +165,7 @@ export default function RewardsLandingScreen() {
             <ProgressBar percentage={generalCompletedPercentage} />
             <TouchableOpacity
                 style={styles.rewardButton}
-                onPress={handleGeneralRewards}
+                onPress={() => handleGeneralRewardsAccess()}
             >
               <Text style={styles.rewardButtonText}>Ver mis logros</Text>
             </TouchableOpacity>
@@ -184,7 +179,7 @@ export default function RewardsLandingScreen() {
             <ProgressBar percentage={specificCompletedPercentage} />
             <TouchableOpacity
                 style={styles.rewardButton}
-                onPress={handleSpecificRewards}
+                onPress={() => handleSpecificRewardsAccess()}
             >
               <Text style={styles.rewardButtonText}>Ver mis logros</Text>
             </TouchableOpacity>

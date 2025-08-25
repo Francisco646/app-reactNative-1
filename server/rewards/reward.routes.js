@@ -9,11 +9,14 @@ class RewardRoutes {
     }
 
     initRewardRoutes(){
-        this.router.get('/general', rewardController.getUserGeneralRewards)
-        this.router.get('/general/:id', rewardController.getRewardById)
-        this.router.get('/specific', rewardController.getUserSpecificRewards)
-        this.router.get('/specific/:id', rewardController.getRewardById)
-        this.router.get('/stats', rewardController.getUserRewardsStats)
+        this.router.get('/general', rewardController.getUserGeneralRewards);
+        this.router.get('/general/:id', rewardController.getRewardById);
+        this.router.get('/specific', rewardController.getUserSpecificRewards);
+        this.router.get('/specific/:id', rewardController.getRewardById);
+        this.router.get('/stats', rewardController.getUserRewardsStats);
+        this.router.get('/:id', rewardController.getUserReward);
+        this.router.put('/:id/progress-update', rewardController.updateRewardProgress);
+        this.router.put('/:id/completed', rewardController.updateRewardCompleted);
     }
 
     getRouter(){

@@ -1,12 +1,9 @@
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import {
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    StyleSheet,
+    Text,
+    View
 } from 'react-native';
 
 import RewardList from '../RewardList';
@@ -14,26 +11,16 @@ import RewardList from '../RewardList';
 export default function RewardSpecificScreen() {
 
     const image = require('../../assets/images/image_1296698.png'); // Example image
-    const { listNames, listDetails, listCompleted } = useLocalSearchParams();
-
-    const rewardsTitle = typeof listNames === 'string' ? listNames.split(',') : listNames;
-    const rewardsDescription = typeof listDetails === 'string' ? listDetails.split(',') : listDetails;
-    const rewardsCompleted = typeof listCompleted === 'string' ? listCompleted.split(',') : listCompleted;
+    
+    const { rewards: rewardsString } = useLocalSearchParams();
+    const combinedRewards = JSON.parse(Array.isArray(rewardsString) ? rewardsString[0] : (rewardsString || '[]'));
 
     return (
         <View style={styles.container}>
             <View style={styles.topContainer}>
-                <Image
-                    source={require('../../assets/images/image_1296698.png')}
-                    style={styles.topContainerTrophy}
-                />
-                <Text style={styles.topContainerTitle}>Logros Específicos</Text>
+                <Text style={styles.topContainerTitle}>Logros Generales</Text>
             </View>
-            <RewardList
-                rewardsTitle={rewardsTitle}
-                rewardsDescription={rewardsDescription}
-                rewardsCompleted={rewardsCompleted}
-            />
+            <RewardList rewards={combinedRewards} />
         </View>
     );
 }
@@ -64,10 +51,5 @@ const styles = StyleSheet.create({
         color: '#1a1a1a',
         textAlign: 'center',
         marginLeft: 10,
-    },
-    topContainerTrophy: {
-        width: 32,
-        height: 32,
-        tintColor: '#00a69a',
-    },
+    }
 });

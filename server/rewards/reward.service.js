@@ -90,6 +90,26 @@ class RewardsService {
         return { statusCode: 201, message: createdReward }
     }
 
+    // Obtener un logro de un usuario
+    async getUserReward(token, rewardId) {
+        try {
+            const result = await this.manageToken(token);
+            if (result.error) return { statusCode: result.code, message: result.message };
+            const userId = result.userId;
+
+            const reward = await rewardsRepository.findUserReward(userId, rewardId);
+            if(!reward) {
+                return { statusCode: 404, message: 'No se ha encontrado el logro de usuario solicitado' };
+            }
+
+            return { statusCode: 200, message: reward };
+
+        } catch(error) {
+            console.error("Error obteniendo el logro del usuario:", error)
+            return { statusCode: 500, message: error }
+        }
+    }
+
     // Obtener los datos sobre los logros generales de un usuario
     async getUserGeneralRewards(token){
         try {
@@ -191,10 +211,59 @@ class RewardsService {
             }
 
         } catch(error) {
-            console.error("Error obteniendo los logros del usuario:", error)
-            return { statusCode: 500, message: error }
+            console.error("Error obteniendo los logros del usuario:", error);
+            return { statusCode: 500, message: error };
         }
 
+    }
+
+    // Actualizar el progreso de un usuario en un logro
+    async updateRewardProgress(token, rewardId){
+        try {
+            const result = await this.manageToken(token);
+            if (result.error) return { statusCode: result.code, message: result.message };
+            const userId = result.userId;
+
+            const reward = await rewardsRepository.findUserReward(userId, rewardId);
+            if(!reward){
+                return { statusCode: 404, message: 'No se ha encontrado el logro de usuario solicitado' };
+            }
+
+            console.log('User ID:', userId);
+            console.log('Reward ID:', rewardId);
+
+            if(reward.progreso >= reward.progreso_necesario) {
+                return { statusCode: 400, message: 'El logro solicitado está ya completado' };
+            }
+
+            await rewardsRepository.updateUserRewardProgress(userId, rewardId, reward.progreso + 1);
+            return { statusCode: 204 };
+
+        } catch(error) {
+            console.error('Error actualizando los logros del usuario:', error);
+            return { statusCode: 500, message: error };
+        }
+    }
+
+    // Marcar un logro como completado
+    async updateRewardCompleted(token, rewardId) {
+        try {
+            const result = await this.manageToken(token);
+            if (result.error) return { statusCode: result.code, message: result.message };
+            const userId = result.userId;
+
+            const reward = await rewardsRepository.findUserReward(userId, rewardId);
+            if(!reward){
+                return { statusCode: 404, message: 'No se ha encontrado el logro de usuario solicitado' };
+            }
+
+            const completedReward = await rewardsRepository.updateUserRewardCompleted(userId, rewardId);
+            return { statusCode: 200, message: completedReward };
+
+        } catch(error) {
+            console.error('Error marcando un logro como completado:', error);
+            return { statusCode: 500, message: error };
+        }
     }
 }
 

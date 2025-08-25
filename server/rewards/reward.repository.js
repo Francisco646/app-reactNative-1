@@ -52,6 +52,14 @@ async function createUserReward(usuario_id, logro_id, tipo_logro) {
     return result;
 }
 
+async function findUserReward(usuario_id, logro_id) {
+    const query = 'SELECT * FROM logros_usuario WHERE usuario_id = ? AND logro_id = ?';
+    const values = [usuario_id, logro_id];
+
+    const result = await db.query(query, values);
+    return result[0];
+}
+
 async function findGeneralUserRewards(usuario_id) {
     const query = 'SELECT * FROM logros_usuario WHERE usuario_id = ? AND tipo_logro = ?';
     const values = [usuario_id, "general"];
@@ -100,7 +108,21 @@ async function findNumberOfGenSpecRewards(usuario_id, tipo_logro) {
     return result;
 }
 
-/* Número de logros específicos */
+async function updateUserRewardProgress(usuario_id, logro_id, newProgress) {
+    const query = 'UPDATE logros_usuario SET progreso = ? WHERE usuario_id = ? AND logro_id = ?';
+    const values = [newProgress, usuario_id, logro_id];
+
+    const result = await db.query(query, values);
+    return result[0];
+}
+
+async function updateUserRewardCompleted(usuario_id, logro_id){
+    const query = 'UPDATE logros_usuario SET completado = ? WHERE usuario_id = ? AND logro_id = ?';
+    const values = [1, usuario_id, logro_id];
+
+    const result = await db.query(query, values);
+    return result;
+}
 
 module.exports = {
     findRewardById,
@@ -108,10 +130,13 @@ module.exports = {
     findSpecificRewardsByDisease,
     findAllGeneralRewards,
     createUserReward,
+    findUserReward,
     findGeneralUserRewards,
     findSpecificUserRewards,
     findUserRewardById,
     findNumberOfCompletedGenSpecRewards,
     findNumberOfUncompletedGenSpecRewards,
-    findNumberOfGenSpecRewards
+    findNumberOfGenSpecRewards,
+    updateUserRewardProgress,
+    updateUserRewardCompleted
 };
