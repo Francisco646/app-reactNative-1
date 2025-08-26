@@ -36,7 +36,15 @@ class RoutinesController {
         const porcentaje_completado = req.body.porcentaje_completado;
 
         const endedRoutine = await routinesService.endRoutine(token, usuarios_rutinas_id, porcentaje_completado);
-        res.status(endedRoutine.status).json(endedRoutine.message);
+        res.status(endedRoutine.statusCode).json(endedRoutine.message);
+    }
+
+    async getCurrentRoutine(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const routineId = req.params.id;
+
+        const currentRoutine = await routinesService.getCurrentRoutine(token, routineId);
+        res.status(currentRoutine.statusCode).json(currentRoutine.message);
     }
 
     async getNumberOfCompletedRoutines(req, res){

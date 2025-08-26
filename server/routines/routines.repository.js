@@ -23,13 +23,22 @@ const startRoutine = async(usuario_id, rutina_id) => {
     const values = [usuario_id, rutina_id, new Date(), 0];
 
     const result = await db.query(query, values);
-    return result[0];
+    return result;
 }
 
 /* Actualizar el porcentaje completado y la fecha de finalización */
 const endRoutine = async(id, porcentaje_completado) => {
     const query = 'UPDATE usuarios_rutinas SET fecha_fin = ?, porcentaje_completado = ? WHERE id = ?';
     const values = [new Date(), porcentaje_completado, id];
+
+    const result = await db.query(query, values);
+    return result[0];
+}
+
+/* Obtener la rutina en curso por su id */
+const findCurrentRoutineById = async(id) => {
+    const query = 'SELECT * FROM usuarios_rutinas WHERE id = ?';
+    const values = [id];
 
     const result = await db.query(query, values);
     return result[0];
@@ -86,6 +95,7 @@ module.exports = {
 
     startRoutine,
     endRoutine,
+    findCurrentRoutineById,
     findNumberOfCompletedRoutines,
     findCompletedRoutines,
 

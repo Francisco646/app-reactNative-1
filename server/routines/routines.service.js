@@ -103,12 +103,12 @@ class RoutinesService {
             const activitiesIdsOfRoutine = await activitiesRepository.findActivitiesOfRoutine(routineId)
             const routineToDo = await routinesRepository.startRoutine(user.id, routineId);
 
-            let activitiesOfRoutine = []
+            let activitiesOfRoutine = [];
 
             // Insertar las actividades
             for(const activity of activitiesIdsOfRoutine){
                 const obtainedActivity = await activitiesRepository.findActivityById(activity.id_actividad);
-                const addedActivityToDo = await activitiesRepository.addActivityOfUserRoutine(routineToDo.id, obtainedActivity.id);
+                const addedActivityToDo = await activitiesRepository.addActivityOfUserRoutine(routineToDo.insertId, obtainedActivity.id);
                 activitiesOfRoutine.push(addedActivityToDo);
             }
 
@@ -146,11 +146,42 @@ class RoutinesService {
             }
 
             // Finalizar rutina
-            const finishedRoutine = await routinesRepository.endRoutine(usuarios_rutinas_id, porcentaje_completado);
-            return { statusCode: 200, message: `Estado de la rutina actualizado con éxito: ${finishedRoutine}` };
+            routinesRepository.endRoutine(usuarios_rutinas_id, porcentaje_completado);
+            return { statusCode: 204 };
 
         } catch (error) {
             console.error('Error finalizando la rutina:', error);
+            return { statusCode: 500, message: error };
+        }
+    }
+
+    async getCurrentRoutine(token, id) {
+        if(!token || token === 'undefined' || token === 'null') {
+            return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
+        }
+
+        try {
+            const decodedToken = jwt.decode(token, 'supersecret');
+            const emailFromToken = decodedToken.email;
+
+            if(!emailFromToken){
+                return { statusCode: 400, message: 'El email del token no es válido. Regresar a inicio.' };
+            }
+
+            const user = await userRepository.findUserByEmail(emailFromToken);
+            if(!user) {
+                return { statusCode: 404, message: 'No se ha encontrado el usuario con dicho email.' };
+            }
+
+            const currentRoutine = await routinesRepository.findCurrentRoutineById(id);
+            if(!currentRoutine) {
+                return { statusCode: 404, message: 'No se ha encontrado la rutina en curso.' };
+            }
+
+            return { statusCode: 200, message: currentRoutine };
+
+        } catch(error) {
+            console.error('Error obteniendo la rutina en curso:', error);
             return { statusCode: 500, message: error };
         }
     }
