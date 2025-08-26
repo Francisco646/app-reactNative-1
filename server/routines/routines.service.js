@@ -1,15 +1,17 @@
 const routinesRepository = require('./routines.repository');
 const activitiesRepository = require('../activities/activities.repository');
 const userRepository = require('../user/user.repository');
+const historyRepository = require('../history/history.repository');
 
 const jwt = require('jsonwebtoken');
 
 class RoutinesService {
 
-    constructor(routinesRepository, userRepository, activitiesRepository) {
+    constructor(routinesRepository, userRepository, activitiesRepository, historyRepository) {
         this.routinesRepository = routinesRepository;
         this.userRepository = userRepository;
         this.activitiesRepository = activitiesRepository;
+        this.historyRepository = historyRepository;
     }
 
     /* Obtener el listado de rutinas de un plan específico */
@@ -126,7 +128,7 @@ class RoutinesService {
         }
     }
 
-    async endRoutine(token, usuarios_rutinas_id, porcentaje_completado){
+    async endRoutine(token, usuarios_rutinas_id, porcentaje_completado, plataforma, modelo_dispositivo){
         if(!token || token === 'undefined' || token === 'null') {
             return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
         }
@@ -146,7 +148,19 @@ class RoutinesService {
             }
 
             // Finalizar rutina
-            routinesRepository.endRoutine(usuarios_rutinas_id, porcentaje_completado);
+            await routinesRepository.endRoutine(usuarios_rutinas_id, porcentaje_completado);
+
+            // Crear registro en el historial
+            await historyRepository.insertHistoryRecord(
+                user.id,
+                'Rutina',
+                new Date(),
+                'Rutina finalizada',
+                plataforma,
+                modelo_dispositivo
+            )
+            console.log('Registro de rutina en el historial creado con éxito')
+
             return { statusCode: 204 };
 
         } catch (error) {
@@ -242,5 +256,5 @@ class RoutinesService {
 
 }
 
-const routinesService = new RoutinesService(routinesRepository, userRepository, activitiesRepository);
+const routinesService = new RoutinesService(routinesRepository, userRepository, activitiesRepository, historyRepository);
 module.exports = routinesService;

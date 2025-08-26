@@ -1,11 +1,19 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Device from 'expo-device';
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Pulse = require('react-native-pulse').default;
 
 export default function RoutineRealizationScreen() {
+
+    const info = {
+        plataforma: Platform.OS,
+        modelo_dispositivo: Device.modelName,
+        os: Device.osName,
+        osVersion: Device.osVersion,
+    };
 
     const { currentRoutine, activitiesOfRoutine, routineToDo } = useLocalSearchParams();
     const [spinnerIsVisible, setSpinnerIsVisible] = React.useState(false);
@@ -80,7 +88,9 @@ export default function RoutineRealizationScreen() {
                 },
                 body: JSON.stringify({
                     usuarios_rutinas_id: currentRoutineAdapted.id,
-                    porcentaje_completado: finalScoreSeries
+                    porcentaje_completado: finalScoreSeries,
+                    plataforma: info.plataforma,
+                    modelo_dispositivo: info.modelo_dispositivo
                 })
             });
 
@@ -117,7 +127,9 @@ export default function RoutineRealizationScreen() {
                 },
                 body: JSON.stringify({
                     usuario_rutina_id: currentRoutineAdapted.id,
-                    actividad_id: currentActivity.id
+                    actividad_id: currentActivity.id,
+                    plataforma: info.plataforma,
+                    modelo_dispositivo: info.modelo_dispositivo
                 })
             });
 

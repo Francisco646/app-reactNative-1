@@ -3,10 +3,11 @@ const activitiesRepository = require('./activities.repository');
 
 const jwt = require('jsonwebtoken')
 const routinesRepository = require("../routines/routines.repository");
+const historyRepository = require("../history/history.repository");
 
 class ActivitiesService {
 
-    constructor(userRepository, activitiesRepository, routinesRepository) {
+    constructor(userRepository, activitiesRepository, routinesRepository, historyRepository) {
         this.userRepository = userRepository;
         this.activitiesRepository = activitiesRepository;
         this.routinesRepository = routinesRepository;
@@ -51,7 +52,7 @@ class ActivitiesService {
 
     }
 
-    async setActivityAsCompleted(token, usuario_rutina_id, actividad_id){
+    async setActivityAsCompleted(token, usuario_rutina_id, actividad_id, plataforma, modelo_dispositivo){
         if(!token || token === 'undefined' || token === 'null') {
             return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
         }
@@ -72,6 +73,18 @@ class ActivitiesService {
             // Marcar como completada
             await activitiesRepository.updateActivityOfUserRoutine(usuario_rutina_id, actividad_id);
             console.log('Actividad completada con éxito');
+
+            // Crear nuevo registro en el historial
+            await historyRepository.insertHistoryRecord(
+                user.id, 
+                'Actividad', 
+                new Date(), 
+                `Actividad con id ${actividad_id} completada`, 
+                plataforma, 
+                modelo_dispositivo
+            );
+            console.log('Registro de actividad en el historial creado con éxito');
+
             return { statusCode: 204 };
 
         } catch (error) {
@@ -111,5 +124,5 @@ class ActivitiesService {
 
 }
 
-const activitiesService = new ActivitiesService(userRepository, activitiesRepository, routinesRepository);
+const activitiesService = new ActivitiesService(userRepository, activitiesRepository, routinesRepository, historyRepository);
 module.exports = activitiesService;
