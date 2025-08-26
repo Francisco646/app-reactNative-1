@@ -51,7 +51,7 @@ class ActivitiesService {
 
     }
 
-    async setActivityAsCompleted(token, usuarios_actividades_id){
+    async setActivityAsCompleted(token, usuario_rutina_id, actividad_id){
         if(!token || token === 'undefined' || token === 'null') {
             return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
         }
@@ -70,8 +70,9 @@ class ActivitiesService {
             }
 
             // Marcar como completada
-            const activityAsCompleted = await activitiesRepository.updateActivityOfUserRoutine(usuarios_actividades_id)
-            return { statusCode: 200, message: `Actividad completada: ${activityAsCompleted}` };
+            await activitiesRepository.updateActivityOfUserRoutine(usuario_rutina_id, actividad_id);
+            console.log('Actividad completada con éxito');
+            return { statusCode: 204 };
 
         } catch (error) {
             console.error('Error actualizando el estado de la actividad:', error);

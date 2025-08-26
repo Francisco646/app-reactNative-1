@@ -15,8 +15,9 @@ class ActivitiesController {
 
     async setActivityAsCompleted(req, res){
         const token = req.headers.authorization?.split(' ')[1];
-        const usuarios_actividades_id = req.body.usuarios_actividades_id
-        const completedActivity = await activitiesService.setActivityAsCompleted(token, usuarios_actividades_id);
+        const usuario_rutina_id = req.body.usuario_rutina_id
+        const actividad_id = req.body.actividad_id
+        const completedActivity = await activitiesService.setActivityAsCompleted(token, usuario_rutina_id, actividad_id);
         res.status(completedActivity.statusCode).json(completedActivity.message);
     }
 

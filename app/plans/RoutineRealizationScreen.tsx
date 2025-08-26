@@ -42,6 +42,7 @@ export default function RoutineRealizationScreen() {
         if (currentSeries < currentActivity.numero_series) {
             setCurrentSeries(prevSeries => prevSeries + 1);
         } else {
+            handleActivityCompletion();
             handleNextActivity();
         }
     };
@@ -94,6 +95,39 @@ export default function RoutineRealizationScreen() {
             console.error('Error finalizando la rutina:', error);
         } finally {
             setSpinnerIsVisible(false);
+        }
+    }
+
+    const handleActivityCompletion = async () => {
+        try {
+            setNumSeriesDone(prevNum => prevNum + 1);
+
+            const token = await AsyncStorage.getItem('userToken');
+            if (!token) {
+                console.error('No se encontró el token de usuario.');
+                return;
+            }
+
+            const responseActivityCompletion = await fetch('http://localhost:3000/activity/completion', {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+                body: JSON.stringify({
+                    usuario_rutina_id: currentRoutineAdapted.id,
+                    actividad_id: currentActivity.id
+                })
+            });
+
+            if (responseActivityCompletion.ok) {
+                const data = await responseActivityCompletion.json();
+                console.log('Actividad completada con éxito:', data);
+            }
+
+        } catch (error) {
+            console.error('Error completando la actividad:', error);
         }
     }
 

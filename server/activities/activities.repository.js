@@ -27,9 +27,9 @@ const addActivityOfUserRoutine = async(usuario_rutina_id, actividad_id) => {
 }
 
 /* Actualizar el estado de la actividad (marcar como completada, y cuándo sucedió) */
-const updateActivityOfUserRoutine = async(id) => {
-    const query = 'UPDATE usuarios_actividades SET completada = ?, fecha_completada = ? WHERE id = ?';
-    const values = [1, new Date(), id];
+const updateActivityOfUserRoutine = async(usuario_rutina_id, actividad_id) => {
+    const query = 'UPDATE usuarios_actividades SET completada = ?, fecha_completada = ? WHERE usuario_rutina_id = ? AND actividad_id = ?';
+    const values = [1, new Date(), usuario_rutina_id, actividad_id];
 
     const result = await db.query(query, values);
     return result[0];
