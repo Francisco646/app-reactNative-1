@@ -109,16 +109,16 @@ async function findNumberOfGenSpecRewards(usuario_id, tipo_logro) {
 }
 
 async function updateUserRewardProgress(usuario_id, logro_id, newProgress) {
-    const query = 'UPDATE logros_usuario SET progreso = ? WHERE usuario_id = ? AND logro_id = ?';
-    const values = [newProgress, usuario_id, logro_id];
+    const query = 'UPDATE logros_usuario SET progreso = ?, fecha_obtencion = ? WHERE usuario_id = ? AND logro_id = ?';
+    const values = [newProgress, new Date(), usuario_id, logro_id];
 
     const result = await db.query(query, values);
     return result[0];
 }
 
 async function updateUserRewardCompleted(usuario_id, logro_id){
-    const query = 'UPDATE logros_usuario SET completado = ? WHERE usuario_id = ? AND logro_id = ?';
-    const values = [1, usuario_id, logro_id];
+    const query = 'UPDATE logros_usuario SET completado = ?, fecha_obtencion = ? WHERE usuario_id = ? AND logro_id = ?';
+    const values = [1, new Date(), usuario_id, logro_id];
 
     const result = await db.query(query, values);
     return result;

@@ -101,6 +101,22 @@ class RoutinesService {
                 return { statusCode: 404, message: 'No se ha encontrado el usuario con dicho email.' };
             }
 
+            // Comprobar si el usuario ha realizado alguna rutina en la fecha actual
+            const completedRoutinesOfUser = await routinesRepository.findAllCompletedRoutines(user.id);
+            const currentDate = new Date();
+
+            const currentDateDay = currentDate.getDate();
+            const currentDateMonth = currentDate.getMonth();
+            const currentDateYear = currentDate.getFullYear();
+
+            for(const routine of completedRoutinesOfUser){
+                const routineDate = routine.fecha_inicio;
+
+                if(currentDateDay === routineDate.getDate() && currentDateMonth === routineDate.getMonth() && currentDateYear === routineDate.getFullYear()) {
+                    return { statusCode: 400, message: 'Ya has realizado una rutina en el día de hoy.' };
+                }
+            }
+
             // Obtener las actividades de la rutina,
             const activitiesIdsOfRoutine = await activitiesRepository.findActivitiesOfRoutine(routineId)
             const routineToDo = await routinesRepository.startRoutine(user.id, routineId);

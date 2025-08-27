@@ -62,6 +62,15 @@ const findCompletedRoutines = async(usuario_id) => {
     return result[0]; // Basta con el primero, en este caso
 }
 
+/* Obtener todas las rutinas que ha completado el usuario */
+const findAllCompletedRoutines = async(usuario_id) => {
+    const query = 'SELECT * FROM usuarios_rutinas WHERE usuario_id = ?';
+    const values = [usuario_id];
+
+    const result = await db.query(query, values);
+    return result;
+}
+
 /* Insertar rutina en el calendario */
 const insertRoutineInCalendar = async(usuario_id, rutina_id, fecha, estado = 'pendiente') => {
     const query = 'INSERT INTO rutinas_calendario (usuario_id, rutina_id, fecha, estado) VALUES (?, ?, ?, ?)';
@@ -98,6 +107,7 @@ module.exports = {
     findCurrentRoutineById,
     findNumberOfCompletedRoutines,
     findCompletedRoutines,
+    findAllCompletedRoutines,
 
     insertRoutineInCalendar,
     deleteUserRoutinesFromCalendar,

@@ -229,6 +229,20 @@ class RewardsService {
                 return { statusCode: 404, message: 'No se ha encontrado el logro de usuario solicitado' };
             }
 
+            // Comprobar si ya se ha actualizado el logro en el día de hoy
+            if(reward.fecha_obtencion) {
+                const rewardDate = new Date(reward.fecha_obtencion);
+                const currentDate = new Date();
+
+                const currentDateDay = currentDate.getDate();
+                const currentDateMonth = currentDate.getMonth();
+                const currentDateYear = currentDate.getFullYear();
+
+                if(currentDateDay === rewardDate.getDate() && currentDateMonth === rewardDate.getMonth() && currentDateYear === rewardDate.getFullYear()) {
+                    return { statusCode: 400, message: 'El logro ya ha sido actualizado en el día de hoy.' };
+                }
+            } 
+
             console.log('User ID:', userId);
             console.log('Reward ID:', rewardId);
 
