@@ -270,6 +270,40 @@ class RoutinesService {
         }
     }
 
+    async createWellnessTest(token, dolor, sueño, fatiga, animo, routineId, isInitial) {
+        if(!token || token === 'undefined' || token === 'null') {
+            return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
+        }
+
+        try {
+            const decodedToken = jwt.decode(token, 'supersecret');
+            const emailFromToken = decodedToken.email;
+
+            if(!emailFromToken){
+                return { statusCode: 400, message: 'El email del token no es válido. Regresar a inicio.' };
+            }
+
+            const user = await userRepository.findUserByEmail(emailFromToken);
+            if(!user) {
+                return { statusCode: 404, message: 'No se ha encontrado el usuario con dicho email.' };
+            }
+
+            const wellnessTest = await routinesRepository.createWellnessTest(user.id, dolor, sueño, fatiga, animo, isInitial);
+
+            if(isInitial){
+                // Insertar fecha inicial en usuarios_rutinas (lógica de startRoutine)
+            } else {
+                // Actualizar fecha final en usuarios_rutinas (lógica de endRoutine)
+            }
+
+            return { statusCode: 201, message: wellnessTest };
+
+        } catch (error) {
+            console.error('Error creando el test de bienestar:', error);
+            return { statusCode: 500, message: error };
+        }
+    }
+
 }
 
 const routinesService = new RoutinesService(routinesRepository, userRepository, activitiesRepository, historyRepository);

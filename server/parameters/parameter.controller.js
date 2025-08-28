@@ -14,6 +14,14 @@ class ParameterController {
         res.status(result.statusCode).json(result.message);
     }
 
+    async createParameterMeasure(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const { id, parametro_id, valor } = req.body;
+
+        const result = await this.parameterService.createParameterMeasure(token, id, parametro_id, valor);
+        res.status(result.statusCode).json(result.message);
+    }
+
 }
 
 const parameterController = new ParameterController(parameterService);

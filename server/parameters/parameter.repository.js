@@ -16,7 +16,16 @@ const findParametersMeasuresByUserActivityId = async (usuario_actividad_id, para
     return result;
 };
 
+const insertParameterMeasure = async (usuario_actividad_id, parametro_id, valor) => {
+    const query = 'INSERT INTO medidas (usuario_actividad_id, parametro_id, valor, fecha_medida) VALUES (?, ?, ?, ?)';
+    const values = [usuario_actividad_id, parametro_id, valor, new Date()];
+
+    const result = await db.query(query, values);
+    return result.insertId;
+};
+
 module.exports = {
     findParameterById,
-    findParametersMeasuresByUserActivityId
+    findParametersMeasuresByUserActivityId,
+    insertParameterMeasure
 };

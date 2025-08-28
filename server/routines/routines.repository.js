@@ -98,6 +98,24 @@ const findRoutinesInCalendarByUserIdAndDate = async(usuario_id, fecha) => {
     return result;
 }
 
+/* Crear un registro en la tabla de wellness_tests */
+const createWellnessTest = async (usuario_id, dolor, sueño, fatiga, animo, test_inicial) => {
+    const query = 'INSERT INTO wellness_tests (usuario_id, dolor, sueño, fatiga, animo, fecha, test_inicial) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const values = [usuario_id, dolor, sueño, fatiga, animo, new Date(), test_inicial];
+
+    const result = await db.query(query, values);
+    return result;
+};
+
+/* Obtener un registro de la tabla wellness_tests */
+const findWellnessTestById = async (id) => {
+    const query = 'SELECT * FROM wellness_tests WHERE id = ?';
+    const values = [id];
+
+    const result = await db.query(query, values);
+    return result[0];
+};
+
 module.exports = {
     findRoutineById,
     findRoutinesByPlanId,
@@ -111,5 +129,8 @@ module.exports = {
 
     insertRoutineInCalendar,
     deleteUserRoutinesFromCalendar,
-    findRoutinesInCalendarByUserIdAndDate
+    findRoutinesInCalendarByUserIdAndDate,
+
+    createWellnessTest,
+    findWellnessTestById
 };

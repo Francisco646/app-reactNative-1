@@ -9,6 +9,7 @@ class ParameterRoutes {
 
     initializeRoutes() {
         this.router.get('/', parameterController.getParametersOfUserActivity);
+        this.router.post('/measure', parameterController.createParameterMeasure);
     }
 
     getRouter() {
