@@ -75,14 +75,16 @@ export default function RegisterGeneralScreen(){
     }
 
     if(spinnerIsVisible) {
-        <View>
-            <Pulse 
-                color="#d1821cff"
-                numPulses={3}
-                diameter={100}
-                speed={1}
-            />
-        </View>
+        return(
+            <View>
+                <Pulse
+                    color="#d1821cff"
+                    numPulses={3}
+                    diameter={100}
+                    speed={1}
+                />
+            </View>
+        )
     } else {
         return (
             <ScrollView style={ styles.container }>

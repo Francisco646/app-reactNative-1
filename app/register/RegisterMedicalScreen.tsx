@@ -2,12 +2,11 @@ import {
     Alert,
     Button,
     Image,
-    Modal,
     ScrollView,
     StyleSheet,
     Text,
-    TouchableOpacity,
-    View
+    View,
+    Platform
 } from 'react-native';
 
 import React, { useState } from 'react';
@@ -16,12 +15,12 @@ import { Calendar } from 'react-native-calendars';
 import { useLocalSearchParams, useRouter } from "expo-router";
 
 import * as Device from 'expo-device';
-import { Platform } from 'react-native';
+import { Picker } from "@react-native-picker/picker";
 
 const Pulse = require('react-native-pulse').default;
 
 export default function RegisterMedicalScreen() {
-    const router = useRouter(); // Usar el hook
+    const router = useRouter();
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
 
     const info = {
@@ -45,15 +44,7 @@ export default function RegisterMedicalScreen() {
 
     /* Disease variables, disease selection is visible */
     const [selectedDisease, setSelectedDisease] = React.useState<string | null>(null);
-    const [isDiseaseModalVisible, setIsDiseaseModalVisible] = React.useState(false);
-
-    /* Medication variables, medication selection is visible */
-    const [selectedMedication, setSelectedMedication] = React.useState<string | null>(null);
-    const [isMedicationModalVisible, setIsMedicationModalVisible] = React.useState(false);
-
-    /* Selectors variables */
-    const diseaseOptions = ['Diabetes', 'Hipertensión', 'Asma'];
-    const medicationOptions = ['Ibuprofeno', 'Paracetamol', 'Insulina'];
+    const diseaseOptions = ['Leucemia', 'Cáncer cerebral', 'Linfoma Hodgkin', 'Linfoma no Hodgkin', 'Otro'];
 
     const handleRegistration = async() => {
         try{
@@ -78,26 +69,29 @@ export default function RegisterMedicalScreen() {
                 })
             })
 
-            const data = await response.json()
-            console.log('Usuario registrado: ', data)
-            router.push('/')
+            const data = await response.json();
+            console.log('Usuario registrado: ', data);
+            router.push('/');
         } catch(error){
-            console.error('Error durante el registro de datos médicos: ', error)
-            Alert.alert('Error registrando datos médicos')
+            console.error('Error durante el registro de datos médicos: ', error);
+            Alert.alert('Error registrando datos médicos');
         } finally {
             setSpinnerIsVisible(false);
         }
     }
 
     if(spinnerIsVisible) {
-        <View>
-            <Pulse
-                color="#d1821cff"
-                numPulses={3}
-                diameter={100}
-                speed={1}
-            />
-        </View>
+        return(
+            <View>
+                <Pulse
+                    color="#d1821cff"
+                    numPulses={3}
+                    diameter={100}
+                    speed={1}
+                />
+            </View>
+        )
+
     } else {
         return(
             <ScrollView style={ styles.container }>
@@ -126,79 +120,17 @@ export default function RegisterMedicalScreen() {
                     <View style={styles.registerRow}>
                         <View style={{ flex: 1 }}>
                             <Text style={styles.topCalendarStyleText}>Seleccione una enfermedad</Text>
-
-                            <TouchableOpacity
+                            <Picker
+                                selectedValue={selectedDisease}
+                                onValueChange={(itemValue) => setSelectedDisease(itemValue)}
                                 style={styles.selectorButton}
-                                onPress={() => setIsDiseaseModalVisible(true)}
                             >
-                                <Text>{selectedDisease || 'Seleccionar enfermedad'}</Text>
-                            </TouchableOpacity>
-
-                            <Modal
-                                transparent
-                                visible={isDiseaseModalVisible}
-                                animationType="slide"
-                                onRequestClose={() => setIsDiseaseModalVisible(false)}
-                            >
-                                <TouchableOpacity
-                                    style={styles.modalOverlay}
-                                    onPress={() => setIsDiseaseModalVisible(false)}
-                                    activeOpacity={1}
-                                >
-                                    <View style={styles.modalContent}>
-                                        {diseaseOptions.map((option, index) => (
-                                            <TouchableOpacity
-                                                key={index}
-                                                onPress={() => {
-                                                    setSelectedDisease(option);
-                                                    setIsDiseaseModalVisible(false);
-                                                }}
-                                                style={styles.optionItem}
-                                            >
-                                                <Text>{option}</Text>
-                                            </TouchableOpacity>
-                                        ))}
-                                    </View>
-                                </TouchableOpacity>
-                            </Modal>
+                                <Picker.Item label="Seleccionar enfermedad" value={null} />
+                                {diseaseOptions.map((option, index) => (
+                                    <Picker.Item key={index} label={option} value={option} />
+                                ))}
+                            </Picker>
                         </View>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={styles.topCalendarStyleText}>Seleccione un medicamento</Text>
-                        <TouchableOpacity
-                            style={styles.selectorButton}
-                            onPress={() => setIsMedicationModalVisible(true)}
-                        >
-                            <Text>{selectedMedication || 'Seleccionar medicamento'}</Text>
-                        </TouchableOpacity>
-
-                        <Modal
-                            transparent
-                            visible={isMedicationModalVisible}
-                            animationType="slide"
-                            onRequestClose={() => setIsMedicationModalVisible(false)}
-                        >
-                            <TouchableOpacity
-                                style={styles.modalOverlay}
-                                onPress={() => setIsMedicationModalVisible(false)}
-                                activeOpacity={1}
-                            >
-                                <View style={styles.modalContent}>
-                                    {medicationOptions.map((option, index) => (
-                                        <TouchableOpacity
-                                            key={index}
-                                            onPress={() => {
-                                                setSelectedMedication(option);
-                                                setIsMedicationModalVisible(false);
-                                            }}
-                                            style={styles.optionItem}
-                                        >
-                                            <Text>{option}</Text>
-                                        </TouchableOpacity>
-                                    ))}
-                                </View>
-                            </TouchableOpacity>
-                        </Modal>
                     </View>
                     <View style={styles.registerRow}>
                         <View style={{ flex: 1 }}>
