@@ -22,6 +22,7 @@ const CalendarRoutes = require('./calendar/calendar.routes');
 const ActivitiesRoutes = require('./activities/activities.routes');
 const RoutinesRoutes = require('./routines/routines.routes');
 const PlansRoutes = require('./plans/plans.routes');
+const MaterialRoutes = require('./materials/material.routes');
 
 /* Inicializar rutas */
 const registerRoutes = new RegisterRoutes();
@@ -33,6 +34,7 @@ const calendarRoutes = new CalendarRoutes();
 const activitiesRoutes = new ActivitiesRoutes();
 const routinesRoutes = new RoutinesRoutes();
 const plansRoutes = new PlansRoutes();
+const materialRoutes = new MaterialRoutes();
 
 /* Habilitar uso de rutas */
 app.use('/register', registerRoutes.getRouter());
@@ -44,6 +46,7 @@ app.use('/calendar', calendarRoutes.getRouter());
 app.use('/activity', activitiesRoutes.getRouter());
 app.use('/routine', routinesRoutes.getRouter());
 app.use('/plan', plansRoutes.getRouter());
+app.use('/material', materialRoutes.getRouter());
 
 /* Abrir servidor */
 app.listen(PORT, () => {
