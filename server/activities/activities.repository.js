@@ -44,6 +44,15 @@ const findActivityOfUserRoutine = async(id) => {
     return result[0];
 }
 
+/* Obtener las actividades del usuario */
+const findActivitiesByActivityId = async(actividad_id) => {
+    const query = 'SELECT * FROM usuarios_actividades WHERE actividad_id = ?';
+    const values = [actividad_id];
+
+    const result = await db.query(query, values);
+    return result;
+}
+
 /* Obtener número de actividades completadas por el usuario */
 const findNumberOfUserCompletedActivities = async(usuario_rutina_id) => {
     const query = 'SELECT COUNT(*) AS total_completed_activities FROM usuarios_actividades WHERE usuario_rutina_id = ?'
@@ -60,5 +69,6 @@ module.exports = {
     addActivityOfUserRoutine,
     updateActivityOfUserRoutine,
     findActivityOfUserRoutine,
+    findActivitiesByActivityId,
     findNumberOfUserCompletedActivities
 }

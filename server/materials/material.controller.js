@@ -11,7 +11,7 @@ class MaterialController {
         const actividad_id = req.params.id;
 
         const result = await materialService.getMaterialOfActivity(token, actividad_id);
-        return res.status(result.statusCode).json(result);
+        return res.status(result.statusCode).json(result.message);
     }
 
 }
