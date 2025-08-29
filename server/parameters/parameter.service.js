@@ -1,6 +1,8 @@
 const parameterRepository = require('./parameter.repository');
 const activitiesRepository = require('../activities/activities.repository');
 
+const jwt = require('jsonwebtoken')
+
 class ParameterService {
 
     constructor(parameterRepository, activitiesRepository) {

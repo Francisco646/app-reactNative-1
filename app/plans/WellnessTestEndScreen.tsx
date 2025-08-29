@@ -2,26 +2,24 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { useState } from "react";
-import { Alert, Button, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Button, ScrollView, StyleSheet, Text, View } from "react-native";
 const Pulse = require('react-native-pulse').default;
 
-export default function WellnessTestInitialScreen() {
-
+export default function WellnessTestEndScreen() {
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
-    const { routineData } = useLocalSearchParams();
+    const { currentRoutine } = useLocalSearchParams(); 
 
     /* Recopilar los valores introducidos en el picker */
     const [ dolor, setDolor ] = useState(null);
     const [ sueno, setSueno ] = useState(null);
     const [ fatiga, setFatiga ] = useState(null);
     const [ animo, setAnimo ] = useState(null);
+    
+    const currentRoutineAdapted = currentRoutine
+        ? JSON.parse(Array.isArray(currentRoutine) ? currentRoutine[0]: currentRoutine)
+        : {};
 
-    /* Adaptar los datos de la rutina */
-    const routineDataAdapted = routineData
-        ? JSON.parse(Array.isArray(routineData) ? routineData[0]: routineData)
-        : [];
-
-    const handleRoutinePerformAccess = async () => {
+    const handleRoutineEnd = async() => {
         try {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
@@ -30,111 +28,34 @@ export default function WellnessTestInitialScreen() {
             const wellnessTestResponse = await fetch('http://localhost:3000/routine/current', {
                 method: 'PUT',
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    routineId: routineDataAdapted.id,
+                    routineId: currentRoutineAdapted.rutina_id,
                     dolor: dolor,
                     sueño: sueno,
                     fatiga: fatiga,
                     animo: animo,
-                    isInitial: true
-                })
+                    isInitial: false,
+                }),
             });
 
             if(wellnessTestResponse.ok){
-                handleRoutineAccess();
+                const wellnessTestData = await wellnessTestResponse.json();
+                console.log('Datos del test de bienestar almacenados:', wellnessTestData);
             }
 
-        } catch (error) {
-            console.error(error);
-            Alert.alert('Error accediendo al inicio de la rutina a realizar');
-        } finally {
             setSpinnerIsVisible(false);
-        }
-    }
-    const handleRoutineAccess = async () => {
-        try {
-            setSpinnerIsVisible(true);
-            const token = await AsyncStorage.getItem('userToken');
-            console.log('Rutina a iniciar:', routineDataAdapted);
+            router.push('/');
 
-            const response = await fetch('http://localhost:3000/routine/start', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    routineId: routineDataAdapted.id
-                })
-            })
-
-            if(response.status === 201) {
-                const data = await response.json();
-                console.log('Datos de la rutina a realizar:', data);
-
-                const actividadesRutina = data.activitiesOfRoutine;
-                const rutinaRealizar = data.routineToDo;
-
-                const responseRoutine = await fetch(`http://localhost:3000/routine/current/${rutinaRealizar.insertId}`, {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-
-                if(responseRoutine.status === 200) {
-                    const currentRoutine = await responseRoutine.json();
-                    console.log('Rutina en curso:', currentRoutine);
-
-                    const routineDataResponse = await fetch(`http://localhost:3000/routine/${currentRoutine.rutina_id}`, {
-                        method: 'GET',
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        }
-                    })
-
-                    if(routineDataResponse.status === 200) {
-                        const routinesData = await routineDataResponse.json();
-                        console.log('Datos de la rutina:', routinesData);
-
-                        const activitiesDataResponse = await fetch(`http://localhost:3000/activity?routineId=${currentRoutine.rutina_id}`, {
-                            method: 'GET',
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            }
-                        })
-
-                        if(activitiesDataResponse.status === 200) {
-                            const activitiesData = await activitiesDataResponse.json();
-                            console.log('Datos de las actividades:', activitiesData);
-
-                            router.push({
-                                pathname: '/plans/RoutineStartScreen',
-                                params: {
-                                    currentRoutine: JSON.stringify(currentRoutine),
-                                    activitiesOfRoutine: JSON.stringify(activitiesData),
-                                    routineToDo: JSON.stringify(routinesData)
-                                }
-                            })
-                        }
-                    }
-                }
-
-                
-            }
         } catch (error) {
-
-        } finally {
+            console.error('Error al finalizar la rutina y almacenar el test de bienestar:', error);
             setSpinnerIsVisible(false);
         }
     }
 
-    if(spinnerIsVisible){
+    if(spinnerIsVisible) {
         return(
             <View>
                 <Pulse
@@ -149,7 +70,7 @@ export default function WellnessTestInitialScreen() {
         return(
             <ScrollView style={styles.container}>
                 <View style={styles.wellnessTestAreaRows}>
-                    <Text style={styles.title}>Test de bienestar inicial</Text>
+                    <Text style={styles.title}>Test de bienestar final</Text>
                     <View style={styles.wellnessTestRow}>
                         <Text style={styles.rowsText}>Nivel de dolor</Text>
                         <View>
@@ -212,13 +133,12 @@ export default function WellnessTestInitialScreen() {
                         </View>
                     </View>
                     <View style={styles.submitButton}>
-                        <Button title="Subir test" onPress={() => handleRoutinePerformAccess()} />
+                        <Button title="Subir test" onPress={() => handleRoutineEnd()} />
                     </View>
                 </View>
             </ScrollView>
         )
     }
-
 }
 
 const styles = StyleSheet.create({

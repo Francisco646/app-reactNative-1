@@ -1,9 +1,12 @@
 const materialRepository = require('./material.repository');
+const userRepository = require('../user/user.repository');
+const jwt = require('jsonwebtoken');
 
 class MaterialService {
 
-    constructor(materialRepository) {
+    constructor(materialRepository, userRepository) {
         this.materialRepository = materialRepository;
+        this.userRepository = userRepository;
     }
 
     async getMaterialOfActivity(token, actividad_id) {
@@ -29,8 +32,10 @@ class MaterialService {
                 return { statusCode: 404, message: 'No se han encontrado materiales para la actividad.' };
             }
 
+            //console.log(materialOfActivity);
+
             const material = await materialRepository.getMaterialById(materialOfActivity.material_id);
-            return { statusCode: 200, data: material };
+            return { statusCode: 200, message: material };
 
         } catch(error) {
             console.error('Error al obtener los materiales de la actividad:', error);
@@ -40,5 +45,5 @@ class MaterialService {
 
 }
 
-const materialService = new MaterialService(materialRepository);
+const materialService = new MaterialService(materialRepository, userRepository);
 module.exports = materialService;

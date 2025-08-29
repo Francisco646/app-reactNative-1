@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from 'expo-device';
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Pulse = require('react-native-pulse').default;
@@ -34,7 +34,9 @@ export default function RoutineRealizationScreen() {
     const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
     const [currentSeries, setCurrentSeries] = useState(1);
     const [numSeriesDone, setNumSeriesDone] = useState(0);
+    const [materialList, setMaterialList] = useState<Array<any>>([[]]);
 
+    const currentMaterials = materialList[currentActivityIndex] || [];
     const currentActivity = activitiesOfRoutineAdapted[currentActivityIndex];
     const totalActivities = activitiesOfRoutineAdapted.length;
     const isLastSeries = currentActivity && currentSeries >= currentActivity.numero_series;
@@ -43,6 +45,44 @@ export default function RoutineRealizationScreen() {
     // @ts-ignore
     const totalSeries = activitiesOfRoutineAdapted.reduce((acc, activity) => acc + activity.numero_series, 0);
 
+    /* Los materiales de la actividad se cargan al comienzo de la ejecución de la rutina */ 
+    useEffect(() => {
+        const loadActivityMaterials = async () => {
+            try {
+                const token = await AsyncStorage.getItem('userToken');
+                if (!token) {
+                    console.error('No se encontró el token de usuario.');
+                    return;
+                }
+
+                let materialList = [];
+
+                for (let activity of activitiesOfRoutineAdapted) {
+                    const response = await fetch(`http://localhost:3000/material/${activity.id}`, {
+                        method: 'GET',
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        }
+                    });
+
+                    if (response.ok) {
+                        const materials = await response.json();
+                        materialList.push(materials);
+                    } else {
+                        console.error(`Error al cargar los materiales de la actividad ${activity.id}:`, response.statusText);
+                    }
+                }
+
+                console.log('Lista de materiales:', materialList);
+                setMaterialList(materialList);
+
+            } catch (error) {
+                console.error('Error al obtener los materiales de la actividad:', error);
+            }
+        };
+
+        loadActivityMaterials();
+    }, [currentActivity]);
 
     const handleNextSeries = () => {
         setNumSeriesDone(prevNum => prevNum + 1);
@@ -66,7 +106,6 @@ export default function RoutineRealizationScreen() {
 
     const handleRoutineEnd = async () => {
         try {
-            setNumSeriesDone(prevNum => prevNum + 1);
             setSpinnerIsVisible(true);
 
             const token = await AsyncStorage.getItem('userToken');
@@ -94,12 +133,19 @@ export default function RoutineRealizationScreen() {
                 })
             });
 
+            console.log('Respuesta al finalizar la rutina:', responseRoutineEnd);
+
             if (responseRoutineEnd.ok) {
                 console.log('Rutina finalizada con éxito');
-                router.push('/plans/RoutineEndScreen');
-            } 
-
-            router.push('/');
+                router.push({
+                    pathname: '/plans/WellnessTestEndScreen',
+                    params: {
+                        currentRoutine: JSON.stringify(currentRoutineAdapted),
+                    }
+                });
+            } else {
+                router.push('/');
+            }
 
         } catch (error) {
             console.error('Error finalizando la rutina:', error);
@@ -160,6 +206,15 @@ export default function RoutineRealizationScreen() {
                 <View style={styles.cardContainer}>
                     <Text style={styles.routineTitle}>{routineToDoAdapted.nombre}</Text>
                     <Text style={styles.activityTitle}>{currentActivity.nombre}</Text>
+                    <Text style={styles.subtitle}>Materiales necesarios:</Text>
+                    
+                    { /* @ts-ignore */}
+                    {currentMaterials.map((material, index) => (
+                        <Text key={index} style={styles.materialText}>
+                            - {material.nombre}
+                        </Text>
+                    ))}
+
                     <Image source={require('../../assets/images/image_1296698.png')} style={styles.activityImage} />
                     
                     <Text style={styles.progressText}>
@@ -260,5 +315,16 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 18,
         color: '#666',
+    },
+    materialTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 5,
+    },
+    materialText: {
+        fontSize: 16,
+        color: '#333',
+        marginBottom: 5,
     },
 });

@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import React from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -43,75 +42,12 @@ export default function RoutineDetailScreen() {
     // @ts-ignore
     const handleActivityStart = async() => {
         try {
-            setSpinnerIsVisible(true);
-            const token = await AsyncStorage.getItem('userToken');
-
-            const response = await fetch('http://localhost:3000/routine/start', {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    routineId: routineDataAdapted.id
-                })
-            })
-
-            if(response.status === 201) {
-                const data = await response.json();
-                console.log('Datos de la rutina a realizar:', data);
-
-                const actividadesRutina = data.activitiesOfRoutine;
-                const rutinaRealizar = data.routineToDo;
-
-                const responseRoutine = await fetch(`http://localhost:3000/routine/current/${rutinaRealizar.insertId}`, {
-                    method: 'GET',
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-
-                if(responseRoutine.status === 200) {
-                    const currentRoutine = await responseRoutine.json();
-                    console.log('Rutina en curso:', currentRoutine);
-
-                    const routineDataResponse = await fetch(`http://localhost:3000/routine/${currentRoutine.rutina_id}`, {
-                        method: 'GET',
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        }
-                    })
-
-                    if(routineDataResponse.status === 200) {
-                        const routinesData = await routineDataResponse.json();
-                        console.log('Datos de la rutina:', routinesData);
-
-                        const activitiesDataResponse = await fetch(`http://localhost:3000/activity?routineId=${currentRoutine.rutina_id}`, {
-                            method: 'GET',
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            }
-                        })
-
-                        if(activitiesDataResponse.status === 200) {
-                            const activitiesData = await activitiesDataResponse.json();
-                            console.log('Datos de las actividades:', activitiesData);
-
-                            router.push({
-                                pathname: '/plans/RoutineStartScreen',
-                                params: {
-                                    currentRoutine: JSON.stringify(currentRoutine),
-                                    activitiesOfRoutine: JSON.stringify(activitiesData),
-                                    routineToDo: JSON.stringify(routinesData)
-                                }
-                            })
-                        }
-                    }
+            router.push({
+                pathname: '/plans/WellnessTestInitialScreen',
+                params: {
+                    routineData: JSON.stringify(routineDataAdapted),
                 }
-
-                
-            }
+            })
 
         } catch (error) {
             console.error(error);

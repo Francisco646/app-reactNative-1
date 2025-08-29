@@ -63,6 +63,14 @@ class RoutinesController {
         res.status(routines.statusCode).json(routines.message);
     }
 
+    async updatePerformedRoutine(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const { routineId, dolor, sueño, fatiga, animo, isInitial } = req.body;
+
+        const wellnessTest = await routinesService.createWellnessTest(token, dolor, sueño, fatiga, animo, routineId, isInitial);
+        res.status(wellnessTest.statusCode).json(wellnessTest.message);
+    }
+
 }
 
 const routinesController = new RoutinesController(routinesService);

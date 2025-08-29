@@ -289,13 +289,6 @@ class RoutinesService {
             }
 
             const wellnessTest = await routinesRepository.createWellnessTest(user.id, dolor, sueño, fatiga, animo, isInitial);
-
-            if(isInitial){
-                // Insertar fecha inicial en usuarios_rutinas (lógica de startRoutine)
-            } else {
-                // Actualizar fecha final en usuarios_rutinas (lógica de endRoutine)
-            }
-
             return { statusCode: 201, message: wellnessTest };
 
         } catch (error) {
