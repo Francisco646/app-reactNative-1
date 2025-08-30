@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Device from 'expo-device';
-import { router, useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from 'react';
-import { Image, Platform, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {router, useLocalSearchParams} from "expo-router";
+import React, {useEffect, useState} from 'react';
+import {Image, Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 const Pulse = require('react-native-pulse').default;
 
@@ -34,9 +34,9 @@ export default function RoutineRealizationScreen() {
     const [currentActivityIndex, setCurrentActivityIndex] = useState(0);
     const [currentSeries, setCurrentSeries] = useState(1);
     const [numSeriesDone, setNumSeriesDone] = useState(0);
-    const [materialList, setMaterialList] = useState<Array<any>>([[]]);
 
-    const currentMaterials = materialList[currentActivityIndex] || [];
+    // Nuevo estado para almacenar todos los materiales cargados
+    const [loadedMaterials, setLoadedMaterials] = useState({});
     const currentActivity = activitiesOfRoutineAdapted[currentActivityIndex];
     const totalActivities = activitiesOfRoutineAdapted.length;
     const isLastSeries = currentActivity && currentSeries >= currentActivity.numero_series;
@@ -45,18 +45,18 @@ export default function RoutineRealizationScreen() {
     // @ts-ignore
     const totalSeries = activitiesOfRoutineAdapted.reduce((acc, activity) => acc + activity.numero_series, 0);
 
-    /* Los materiales de la actividad se cargan al comienzo de la ejecución de la rutina */ 
+    /* Cargar todos los materiales al comienzo de la ejecución de la rutina */
     useEffect(() => {
-        const loadActivityMaterials = async () => {
+        const loadAllActivityMaterials = async () => {
             try {
+
                 const token = await AsyncStorage.getItem('userToken');
                 if (!token) {
                     console.error('No se encontró el token de usuario.');
                     return;
                 }
 
-                let materialList = [];
-
+                let materialsMap = {};
                 for (let activity of activitiesOfRoutineAdapted) {
                     const response = await fetch(`http://localhost:3000/material/${activity.id}`, {
                         method: 'GET',
@@ -64,25 +64,25 @@ export default function RoutineRealizationScreen() {
                             Authorization: `Bearer ${token}`,
                         }
                     });
-
                     if (response.ok) {
-                        const materials = await response.json();
-                        materialList.push(materials);
+                        const data = await response.json();
+                        // @ts-ignore
+                        materialsMap[activity.id] = Array.isArray(data) ? data : [data];
                     } else {
                         console.error(`Error al cargar los materiales de la actividad ${activity.id}:`, response.statusText);
                     }
                 }
-
-                console.log('Lista de materiales:', materialList);
-                setMaterialList(materialList);
-
+                setLoadedMaterials(materialsMap);
             } catch (error) {
                 console.error('Error al obtener los materiales de la actividad:', error);
+            } finally {
+                setSpinnerIsVisible(false);
             }
         };
-
-        loadActivityMaterials();
-    }, [currentActivity]);
+        if (activitiesOfRoutineAdapted.length > 0) {
+            loadAllActivityMaterials();
+        }
+    }, [activitiesOfRoutineAdapted]);
 
     const handleNextSeries = () => {
         setNumSeriesDone(prevNum => prevNum + 1);
@@ -113,7 +113,7 @@ export default function RoutineRealizationScreen() {
                 console.error('No se encontró el token de usuario.');
                 return;
             }
-            
+
             const finalScoreSeries = Math.round((numSeriesDone / totalSeries) * 100);
             console.log('Porcentaje de series completadas:', finalScoreSeries);
             console.log('ID de la rutina de usuario:', currentRoutineAdapted.id);
@@ -201,22 +201,27 @@ export default function RoutineRealizationScreen() {
             </View>
         )
     } else {
+        // @ts-ignore
+        const currentMaterials = loadedMaterials[currentActivity.id] || [];
         return(
             <View style={styles.container}>
                 <View style={styles.cardContainer}>
                     <Text style={styles.routineTitle}>{routineToDoAdapted.nombre}</Text>
                     <Text style={styles.activityTitle}>{currentActivity.nombre}</Text>
-                    <Text style={styles.subtitle}>Materiales necesarios:</Text>
-                    
-                    { /* @ts-ignore */}
-                    {currentMaterials.map((material, index) => (
-                        <Text key={index} style={styles.materialText}>
-                            - {material.nombre}
-                        </Text>
-                    ))}
+                    {currentMaterials.length > 0 && (
+                        <View style={{ marginBottom: 15 }}>
+                            <Text style={styles.subtitle}>Materiales necesarios:</Text>
+                            {/* @ts-ignore */}
+                            {currentMaterials.map((material, index) => (
+                                <Text key={index} style={styles.materialText}>
+                                    - {material.nombre}
+                                </Text>
+                            ))}
+                        </View>
+                    )}
 
                     <Image source={require('../../assets/images/image_1296698.png')} style={styles.activityImage} />
-                    
+
                     <Text style={styles.progressText}>
                         Serie {currentSeries} de {currentActivity.numero_series}
                     </Text>
@@ -233,7 +238,7 @@ export default function RoutineRealizationScreen() {
                 </TouchableOpacity>
             </View>
         )
-    }   
+    }
 }
 
 const styles = StyleSheet.create({
