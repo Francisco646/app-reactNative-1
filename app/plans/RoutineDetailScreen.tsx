@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from "expo-router";
 import React from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Pulse = require('react-native-pulse').default;
 
@@ -24,12 +25,25 @@ export default function RoutineDetailScreen() {
     const handleActivityAccess = async (activity) => {
         try {
             setSpinnerIsVisible(true);
-            router.push({
-                pathname: '/plans/ActivityDetailScreen',
-                params: {
-                    activitiesData: JSON.stringify(activity)
-                }
+            const token = await AsyncStorage.getItem('userToken');
+
+            const response = await fetch(`http://localhost:3000/material/${activity.id}`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             })
+
+            if(response.ok) {
+                const material = await response.json();
+                router.push({
+                    pathname: '/plans/ActivityDetailScreen',
+                    params: {
+                        activitiesData: JSON.stringify(activity),
+                        materialData: JSON.stringify(material)
+                    }
+                })
+            }
 
         } catch(error){
             console.error(error);
@@ -39,15 +53,33 @@ export default function RoutineDetailScreen() {
         }
     }
 
-    // @ts-ignore
     const handleActivityStart = async() => {
         try {
-            router.push({
-                pathname: '/plans/WellnessTestInitialScreen',
-                params: {
-                    routineData: JSON.stringify(routineDataAdapted),
-                }
+            setSpinnerIsVisible(true);
+            const token = await AsyncStorage.getItem('userToken');
+
+            const response = await fetch('http://localhost:3000/routine/start', {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    routineId: routineDataAdapted.id
+                })
             })
+
+            if(response.ok) {
+                const data = await response.json();
+                router.push({
+                    pathname: '/plans/WellnessTestInitialScreen',
+                    params: {
+                        routineData: JSON.stringify(routineDataAdapted),
+                        routineStartData: JSON.stringify(data)
+                    }
+                })
+            }
 
         } catch (error) {
             console.error(error);

@@ -146,7 +146,7 @@ export default function Calendar() {
                     params: {
                         routineData: JSON.stringify(routine),
                         activitiesData: JSON.stringify(activitiesData),
-                        isThisPlanActive: JSON.stringify('true')
+                        isThisPlanActive: JSON.stringify(true)
                     }
                 });
             } else {

@@ -46,8 +46,7 @@ export default function RewardsLandingScreen() {
   const generalCompletedPercentage = generalCompleted * 100;
   const specificCompletedPercentage = specificCompleted * 100;
 
-  // @ts-ignore
-  const handleGeneralRewardsAccess = async () => { 
+  const handleGeneralRewardsAccess = async () => {
     try {
         setSpinnerIsVisible(true);
         const token = await AsyncStorage.getItem('userToken');
@@ -59,6 +58,8 @@ export default function RewardsLandingScreen() {
         console.log('Response status:', response);
         if (response.status === 200) {
             await manageResponse(response, 'general');
+        } else if(response.status === 401) {
+            router.push('/login/LoginScreen');
         }
     } catch (error) {
         Alert.alert(`Se ha producido un error intentando obtener los logros generales`);
@@ -67,8 +68,7 @@ export default function RewardsLandingScreen() {
     }
 }
 
-// @ts-ignore
-  const handleSpecificRewardsAccess = async () => { 
+  const handleSpecificRewardsAccess = async () => {
     try {
         setSpinnerIsVisible(true);
         const token = await AsyncStorage.getItem('userToken');
@@ -80,6 +80,8 @@ export default function RewardsLandingScreen() {
         console.log('Response status:', response);
         if (response.status === 200) {
             await manageResponse(response, 'specific');
+        } else if(response.status === 401) {
+            router.push('/login/LoginScreen');
         }
     } catch (error) {
         Alert.alert(`Se ha producido un error intentando obtener los logros específicos`);
@@ -105,7 +107,7 @@ export default function RewardsLandingScreen() {
           console.log('User Data:', user);
 
           return {
-              id: common.id, 
+              id: common.id,
               nombre: common.nombre,
               detalles: common.detalles,
               completado: user.completado,
@@ -124,7 +126,6 @@ export default function RewardsLandingScreen() {
       router.push({
           pathname,
           params: {
-              // Convierte el array completo a una cadena JSON
               rewards: JSON.stringify(combinedRewards)
           }
       });

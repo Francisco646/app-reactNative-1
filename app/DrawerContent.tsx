@@ -6,7 +6,7 @@ import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native
 
 // @ts-ignore
 export default function DrawerContent({ openDrawer, closeDrawer }) {
-  
+
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
 
     const info = {
@@ -50,6 +50,33 @@ export default function DrawerContent({ openDrawer, closeDrawer }) {
         }
     }
 
+    const handleRegistration = async () => {
+        try{
+            setSpinnerIsVisible(true);
+            const token = await AsyncStorage.getItem('userToken');
+
+            const response = await fetch('http://localhost:3000/login/status', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            console.log(response)
+
+            if (response.status === 204){
+                router.push('/register/RegisterGeneralScreen');
+                return;
+            }
+
+        } catch (error) {
+            console.error('Error intentando acceder al registro:', error);
+            Alert.alert('Se ha producido un error intentando acceder al registro');
+        } finally {
+            setSpinnerIsVisible(false);
+        }
+    }
+
     const handleRewardsAccess = async () => {
         try{
             setSpinnerIsVisible(true);
@@ -80,7 +107,8 @@ export default function DrawerContent({ openDrawer, closeDrawer }) {
                         numOfTotalSpecificRewards: data.numOfTotalSpecificRewards[0].total
                     }
                 })
-
+            } else if(response.status === 401) {
+                router.push('/login/LoginScreen');
             }
 
         } catch (error){
@@ -119,6 +147,8 @@ export default function DrawerContent({ openDrawer, closeDrawer }) {
                     pathname: '/history/HistoryScreen',
                     params: { dates: dates, actions: actions }
                 });
+            } else if(response.status === 401) {
+                router.push('/login/LoginScreen');
             }
 
         } catch (error) {
@@ -163,6 +193,8 @@ export default function DrawerContent({ openDrawer, closeDrawer }) {
                         userPlansData: JSON.stringify(dataUserPlans.planGeneralData)
                     }
                 })
+            } else if(responseUserPlans.status === 401) {
+                router.push('/login/LoginScreen');
             }
 
         } catch(error) {
@@ -172,33 +204,61 @@ export default function DrawerContent({ openDrawer, closeDrawer }) {
             setSpinnerIsVisible(false);
         }
     }
-  
+
+    const handleCalendarAccess = async () => {
+        try {
+            setSpinnerIsVisible(true);
+            const token = await AsyncStorage.getItem('userToken');
+
+            const response = await fetch('http://localhost:3000/login/status', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            console.log(response)
+
+            if (response.status === 200){
+                router.push('/calendar/Calendar');
+            } else {
+                router.push('/login/LoginScreen');
+            }
+
+        } catch (error) {
+            console.error('Error accediendo al calendario:', error);
+            Alert.alert('Se ha producido un error intentando acceder al calendario');
+        } finally {
+            setSpinnerIsVisible(false);
+        }
+    }
+
     return (
-    <View style={drawerStyles.container}>
-        <Text style={drawerStyles.title}>Menú</Text>
-        <Pressable style={drawerStyles.item} onPress={() => { router.push('/settings/SettingsLandingScreen'); closeDrawer(); }}>
-            <Text style={drawerStyles.itemText}>Ajustes</Text>
-        </Pressable>
-        <Pressable style={drawerStyles.item} onPress={() => { handleLoginStatus(); closeDrawer(); }}>
-            <Text style={drawerStyles.itemText}>Iniciar Sesión</Text>
-        </Pressable>
-        <Pressable style={drawerStyles.item} onPress={() => { router.push('/register/RegisterGeneralScreen'); closeDrawer(); }}>
-            <Text style={drawerStyles.itemText}>Registrarse</Text>
-        </Pressable>
-        <Pressable style={drawerStyles.item} onPress={() => { handlePlanAccess(); closeDrawer(); }}>
-            <Text style={drawerStyles.itemText}>Planes</Text>
-        </Pressable>
-        <Pressable style={drawerStyles.item} onPress={() => { handleRewardsAccess(); closeDrawer(); }}>
-            <Text style={drawerStyles.itemText}>Logros</Text>
-        </Pressable>
-        <Pressable style={drawerStyles.item} onPress={() => { handleHistoryAccess(); closeDrawer(); }}>
-            <Text style={drawerStyles.itemText}>Historial</Text>
-        </Pressable>
-        <Pressable style={drawerStyles.item} onPress={() => { router.push('/calendar/Calendar'); closeDrawer(); }}>
-            <Text style={drawerStyles.itemText}>Calendario</Text>
-        </Pressable>
-    </View>
-  );
+        <View style={drawerStyles.container}>
+            <Text style={drawerStyles.title}>Menú</Text>
+            <Pressable style={drawerStyles.item} onPress={() => { router.push('/settings/SettingsLandingScreen'); closeDrawer(); }}>
+                <Text style={drawerStyles.itemText}>Ajustes</Text>
+            </Pressable>
+            <Pressable style={drawerStyles.item} onPress={() => { handleLoginStatus(); closeDrawer(); }}>
+                <Text style={drawerStyles.itemText}>Iniciar Sesión</Text>
+            </Pressable>
+            <Pressable style={drawerStyles.item} onPress={() => { handleRegistration(); closeDrawer(); }}>
+                <Text style={drawerStyles.itemText}>Registrarse</Text>
+            </Pressable>
+            <Pressable style={drawerStyles.item} onPress={() => { handlePlanAccess(); closeDrawer(); }}>
+                <Text style={drawerStyles.itemText}>Planes</Text>
+            </Pressable>
+            <Pressable style={drawerStyles.item} onPress={() => { handleRewardsAccess(); closeDrawer(); }}>
+                <Text style={drawerStyles.itemText}>Logros</Text>
+            </Pressable>
+            <Pressable style={drawerStyles.item} onPress={() => { handleHistoryAccess(); closeDrawer(); }}>
+                <Text style={drawerStyles.itemText}>Historial</Text>
+            </Pressable>
+            <Pressable style={drawerStyles.item} onPress={() => { handleCalendarAccess(); closeDrawer(); }}>
+                <Text style={drawerStyles.itemText}>Calendario</Text>
+            </Pressable>
+        </View>
+    );
 }
 
 const drawerStyles = StyleSheet.create({

@@ -5,10 +5,14 @@ import {useLocalSearchParams} from "expo-router";
 /* Mostrar los datos sobre una actividad específica de un plan */
 export default function ActivityDetailScreen() {
 
-    const { activitiesData } = useLocalSearchParams();
+    const { activitiesData, materialData } = useLocalSearchParams();
 
     const activitiesDataAdapted = activitiesData
         ? JSON.parse(Array.isArray(activitiesData) ? activitiesData[0]: activitiesData)
+        : [];
+
+    const materialDataAdapted = materialData
+        ? JSON.parse(Array.isArray(materialData) ? materialData[0]: materialData)
         : [];
 
     const activityImage = require('../../assets/images/image_1296698.png');
@@ -48,13 +52,21 @@ export default function ActivityDetailScreen() {
                             <Text style={styles.detailValue}>{activitiesDataAdapted.duracion_minutos} min</Text>
                         </View>
                     )}
+
                 </View>
             </View>
 
-            <View style={styles.descriptionContainer}>
+            <View style={styles.card}>
                 <Text style={styles.sectionTitle}>Descripción</Text>
                 <Text style={styles.descriptionText}>
-                    {activitiesDataAdapted.descripcion || 'No hay descripción disponible para esta actividad.'}
+                    {activitiesDataAdapted.descripcion}
+                </Text>
+            </View>
+
+            <View style={styles.card}>
+                <Text style={styles.sectionTitle}>Materiales necesarios</Text>
+                <Text style={styles.descriptionText}>
+                    {materialDataAdapted.nombre}
                 </Text>
             </View>
 
@@ -131,17 +143,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#333',
         marginTop: 5,
-    },
-    descriptionContainer: {
-        backgroundColor: '#fff',
-        borderRadius: 20,
-        padding: 20,
-        marginBottom: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 5,
     },
     sectionTitle: {
         fontSize: 20,

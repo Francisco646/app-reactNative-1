@@ -8,7 +8,7 @@ const Pulse = require('react-native-pulse').default;
 export default function WellnessTestInitialScreen() {
 
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
-    const { routineData } = useLocalSearchParams();
+    const { routineData, routineStartData } = useLocalSearchParams();
 
     /* Recopilar los valores introducidos en el picker */
     const [ dolor, setDolor ] = useState(null);
@@ -19,6 +19,10 @@ export default function WellnessTestInitialScreen() {
     /* Adaptar los datos de la rutina */
     const routineDataAdapted = routineData
         ? JSON.parse(Array.isArray(routineData) ? routineData[0]: routineData)
+        : [];
+
+    const routineStartDataAdapted = routineStartData
+        ? JSON.parse(Array.isArray(routineStartData) ? routineStartData[0]: routineStartData)
         : [];
 
     const handleRoutinePerformAccess = async () => {
@@ -59,76 +63,59 @@ export default function WellnessTestInitialScreen() {
         try {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
-            console.log('Rutina a iniciar:', routineDataAdapted);
 
-            const response = await fetch('http://localhost:3000/routine/start', {
-                method: 'POST',
+            console.log('Rutina a iniciar:', routineDataAdapted);
+            console.log('Datos de la rutina a realizar:', routineStartDataAdapted);
+
+            const rutinaRealizar = routineStartDataAdapted.routineToDo;
+
+            const responseRoutine = await fetch(`http://localhost:3000/routine/current/${rutinaRealizar.insertId}`, {
+                method: 'GET',
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    routineId: routineDataAdapted.id
-                })
+                }
             })
 
-            if(response.status === 201) {
-                const data = await response.json();
-                console.log('Datos de la rutina a realizar:', data);
+            if(responseRoutine.ok) {
+                const currentRoutine = await responseRoutine.json();
+                console.log('Rutina en curso:', currentRoutine);
 
-                const actividadesRutina = data.activitiesOfRoutine;
-                const rutinaRealizar = data.routineToDo;
-
-                const responseRoutine = await fetch(`http://localhost:3000/routine/current/${rutinaRealizar.insertId}`, {
+                const routineDataResponse = await fetch(`http://localhost:3000/routine/${currentRoutine.rutina_id}`, {
                     method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
                     }
                 })
 
-                if(responseRoutine.status === 200) {
-                    const currentRoutine = await responseRoutine.json();
-                    console.log('Rutina en curso:', currentRoutine);
+                if(routineDataResponse.ok) {
+                    const routinesData = await routineDataResponse.json();
+                    console.log('Datos de la rutina:', routinesData);
 
-                    const routineDataResponse = await fetch(`http://localhost:3000/routine/${currentRoutine.rutina_id}`, {
+                    const activitiesDataResponse = await fetch(`http://localhost:3000/activity?routineId=${currentRoutine.rutina_id}`, {
                         method: 'GET',
                         headers: {
                             Authorization: `Bearer ${token}`,
                         }
                     })
 
-                    if(routineDataResponse.status === 200) {
-                        const routinesData = await routineDataResponse.json();
-                        console.log('Datos de la rutina:', routinesData);
+                    if(activitiesDataResponse.ok) {
+                        const activitiesData = await activitiesDataResponse.json();
+                        console.log('Datos de las actividades:', activitiesData);
 
-                        const activitiesDataResponse = await fetch(`http://localhost:3000/activity?routineId=${currentRoutine.rutina_id}`, {
-                            method: 'GET',
-                            headers: {
-                                Authorization: `Bearer ${token}`,
+                        router.push({
+                            pathname: '/plans/RoutineStartScreen',
+                            params: {
+                                currentRoutine: JSON.stringify(currentRoutine),
+                                activitiesOfRoutine: JSON.stringify(activitiesData),
+                                routineToDo: JSON.stringify(routinesData)
                             }
                         })
-
-                        if(activitiesDataResponse.status === 200) {
-                            const activitiesData = await activitiesDataResponse.json();
-                            console.log('Datos de las actividades:', activitiesData);
-
-                            router.push({
-                                pathname: '/plans/RoutineStartScreen',
-                                params: {
-                                    currentRoutine: JSON.stringify(currentRoutine),
-                                    activitiesOfRoutine: JSON.stringify(activitiesData),
-                                    routineToDo: JSON.stringify(routinesData)
-                                }
-                            })
-                        }
                     }
                 }
-
-                
             }
         } catch (error) {
-
+            console.error('Error accediendo al inicio de la rutina a realizar:', error);
+            Alert.alert('Error accediendo al inicio de la rutina a realizar');
         } finally {
             setSpinnerIsVisible(false);
         }

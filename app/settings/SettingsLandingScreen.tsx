@@ -17,18 +17,13 @@ export default function SettingsLandingScreen() {
   const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
 
   const handleGeneralSettings = () => {
-    // Pensar en qué incluir en este área (preguntar)
-    // Algunas ideas:
-    // - Datos generales de la aplicacion
-    // - Preferencias de notificaciones
-    // - etc.
     // Por ahora, únicamente ir a la pantalla
     router.push('/settings/SettingsGeneralScreen')
   }
 
   // Obtener los datos del usuario, tanto los normales como los médicos
   const handleSpecificSettings = async () => {
-    
+
     try {
         setSpinnerIsVisible(true);
         const token = await AsyncStorage.getItem('userToken');
@@ -37,7 +32,7 @@ export default function SettingsLandingScreen() {
             Alert.alert("No hay una sesión activa");
             return;
         }
-        
+
         const response = await fetch('http://localhost:3000/setting/user', {
             method: 'GET',
             headers: {
@@ -56,7 +51,7 @@ export default function SettingsLandingScreen() {
             const fecha_nacimiento = data.fecha_nacimiento
             const tipo_enfermedad = data.tipo_enfermedad
             const fecha_fin_tratamiento = data.fecha_fin_tratamiento
-            
+
             router.push({
                 pathname: '/settings/SettingsUserScreen',
                 params: {
@@ -68,11 +63,11 @@ export default function SettingsLandingScreen() {
                     fecha_fin_tratamiento
                 }
             })
-            
-            return;
+        } else if (response.status === 401){
+            router.push('/login/LoginScreen');
+        } else {
+            router.push('/');
         }
-
-        router.push('/')
     } catch (error) {
       console.log('Error obteniendo los ajustes de usuario:', error);
       Alert.alert('Error obteniendo los ajustes de usuario');

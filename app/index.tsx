@@ -33,7 +33,7 @@ export default function HomeScreen() {
     }
 
     const getLoginStatus = async () => {
-        
+
         try {
             const token = await AsyncStorage.getItem('userToken');
             if (!token) {
@@ -54,7 +54,7 @@ export default function HomeScreen() {
             }
 
             return '¡Sesión activa!';
-            
+
         } catch (error) {
             console.error(error);
             Alert.alert("Error obteniendo datos de sesión");
@@ -142,6 +142,26 @@ export default function HomeScreen() {
         }
     }
 
+    const handleRegistration = async () => {
+        try{
+            setSpinnerIsVisible(true);
+
+            const loginStatus = await getLoginStatus();
+            if (loginStatus === '¡Sesión activa!') {
+                Alert.alert('Ya hay una sesión activa. Cierra sesión para registrar un nuevo usuario.');
+                return;
+            } else if(loginStatus !== 'Error') {
+                router.push('/register/RegisterGeneralScreen');
+            }
+
+        } catch (error) {
+            console.error('Error intentando acceder al registro:', error);
+            Alert.alert('Se ha producido un error intentando acceder al registro');
+        } finally {
+            setSpinnerIsVisible(false);
+        }
+    }
+
     const handleRewardsAccess = async () => {
         try{
             setSpinnerIsVisible(true);
@@ -172,7 +192,8 @@ export default function HomeScreen() {
                         numOfTotalSpecificRewards: data.numOfTotalSpecificRewards[0].total
                     }
                 })
-
+            } else if(response.status === 401) {
+                router.push('/login/LoginScreen');
             }
 
         } catch (error){
@@ -211,6 +232,8 @@ export default function HomeScreen() {
                     pathname: '/history/HistoryScreen',
                     params: { dates: dates, actions: actions }
                 });
+            } else if(response.status === 401) {
+                router.push('/login/LoginScreen');
             }
 
         } catch (error) {
@@ -268,11 +291,41 @@ export default function HomeScreen() {
                         userPlansData: JSON.stringify({})
                     }
                 });
+            } else if(responseUserPlans.status === 401) {
+                router.push('/login/LoginScreen');
             }
 
         } catch(error) {
             console.error('Error accediendo a los planes:', error);
             Alert.alert('Se ha producido un error intentando acceder a los planes');
+        } finally {
+            setSpinnerIsVisible(false);
+        }
+    }
+
+    const handleCalendarAccess = async () => {
+        try {
+            setSpinnerIsVisible(true);
+            const token = await AsyncStorage.getItem('userToken');
+
+            const response = await fetch('http://localhost:3000/login/status', {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            });
+
+            console.log(response)
+
+            if (response.status === 200){
+                router.push('/calendar/Calendar');
+            } else {
+                router.push('/login/LoginScreen');
+            }
+
+        } catch (error) {
+            console.error('Error accediendo al calendario:', error);
+            Alert.alert('Se ha producido un error intentando acceder al calendario');
         } finally {
             setSpinnerIsVisible(false);
         }
@@ -315,14 +368,14 @@ export default function HomeScreen() {
                             <Text style={styles.motivationalText}>Frase Motivadora</Text>
                         </View>
 
-                        <Pressable style={styles.card} onPress={() => router.push('/calendar/Calendar')}>
+                        <Pressable style={styles.card} onPress={() => handleCalendarAccess()}>
                             <View style={styles.cardContent}>
                                 <View>
                                     <Text style={styles.cardTitle}>Calendario</Text>
                                     <Text style={styles.cardSubtitle}>{getCurrentDate()}</Text>
                                     <Text style={styles.cardSubtitle}>¿Qué tenemos que hacer hoy?</Text>
                                 </View>
-                                <Pressable style={styles.button} onPress={() => router.push('/calendar/Calendar')}>
+                                <Pressable style={styles.button} onPress={() => handleCalendarAccess()}>
                                     <Text style={styles.buttonText}>¡Vamos!</Text>
                                 </Pressable>
                             </View>
@@ -357,7 +410,7 @@ export default function HomeScreen() {
                             <Text style={styles.links} onPress={() => handleLoginStatus()}>Login</Text>
                             <Text style={styles.links} onPress={() => handleLogout()}>Logout</Text>
                             <Text style={styles.links}>{loginStatusMessage}</Text>
-                            <Text style={styles.links} onPress={() => router.push('/register/RegisterGeneralScreen')}>Register</Text>
+                            <Text style={styles.links} onPress={() => handleRegistration()}>Register</Text>
                             <Text style={styles.links} onPress={() => router.push('/settings/SettingsLandingScreen')}>Settings</Text>
                             <Text style={styles.links} onPress={() => handleHistoryAccess()}>History</Text>
                         </View>
