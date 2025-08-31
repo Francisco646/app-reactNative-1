@@ -97,12 +97,20 @@ class RewardsService {
             if (result.error) return { statusCode: result.code, message: result.message };
             const userId = result.userId;
 
-            const reward = await rewardsRepository.findUserReward(userId, rewardId);
-            if(!reward) {
+            const rewardUserData = await rewardsRepository.findUserReward(userId, rewardId);
+            if(!rewardUserData) {
                 return { statusCode: 404, message: 'No se ha encontrado el logro de usuario solicitado' };
             }
 
-            return { statusCode: 200, message: reward };
+            const rewardCommonData = await rewardsRepository.findRewardById(rewardId);
+
+            return {
+                statusCode: 200,
+                message: {
+                    userRewardData: rewardUserData,
+                    rewardCommonData: rewardCommonData
+                }
+            };
 
         } catch(error) {
             console.error("Error obteniendo el logro del usuario:", error)
@@ -241,12 +249,14 @@ class RewardsService {
                 if(currentDateDay === rewardDate.getDate() && currentDateMonth === rewardDate.getMonth() && currentDateYear === rewardDate.getFullYear()) {
                     return { statusCode: 400, message: 'El logro ya ha sido actualizado en el día de hoy.' };
                 }
-            } 
+            }
+
+            const rewardData = await rewardsRepository.findRewardById(rewardId);
 
             console.log('User ID:', userId);
             console.log('Reward ID:', rewardId);
 
-            if(reward.progreso >= reward.progreso_necesario) {
+            if(reward.progreso >= rewardData.progreso_necesario) {
                 return { statusCode: 400, message: 'El logro solicitado está ya completado' };
             }
 

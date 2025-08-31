@@ -44,7 +44,7 @@ export default function RegisterMedicalScreen() {
 
     /* Disease variables, disease selection is visible */
     const [selectedDisease, setSelectedDisease] = React.useState<string | null>(null);
-    const diseaseOptions = ['Leucemia', 'Cáncer cerebral', 'Linfoma Hodgkin', 'Linfoma no Hodgkin', 'Otro'];
+    const diseaseOptions = ['Leucemia', 'Cáncer Cerebral', 'Linfoma no Hodgkin', 'Linfoma Hodgkin', 'Otro'];
 
     const handleRegistration = async() => {
         try{

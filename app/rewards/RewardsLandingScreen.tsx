@@ -112,7 +112,7 @@ export default function RewardsLandingScreen() {
               detalles: common.detalles,
               completado: user.completado,
               logro_fisico: common.logro_fisico,
-              progreso_necesario: user.progreso_necesario
+              progreso_necesario: common.progreso_necesario
           };
       });
 

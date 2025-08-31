@@ -15,7 +15,7 @@ export default function RewardList({ rewards }) {
         <ScrollView contentContainerStyle={styles.rewardsListContainer}>
             {/* @ts-ignore */}
             {rewards.map((reward) => {
-                // Aquellos logros que no pueden obtenerse realizando planes, rutinas, actividades (ej: dormir 8 horas, beber dos litros diarios, etc.)
+                // Aquellos logros que no pueden obtenerse realizando planes, rutinas, actividades (ej: dormir 8 horas, beber dos litros de agua diarios, etc.)
                 if (!reward.logro_fisico) {
                     return (
                         <DailyTrackerCard

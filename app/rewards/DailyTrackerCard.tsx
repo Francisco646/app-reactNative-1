@@ -38,8 +38,12 @@ export default function DailyTrackerCard ({ id, title, description, totalDays, i
 
             const data = await response.json();
             if (response.ok) {
-                setProgress(data.progreso);
-                setIsCompleted(data.progreso === data.progreso_necesario);
+
+                const rewardCommonData = data.rewardCommonData;
+                const rewardUserData = data.userRewardData;
+
+                setProgress(rewardUserData.progreso);
+                setIsCompleted(rewardUserData.progreso === rewardCommonData.progreso_necesario);
             } else {
                 Alert.alert('Error', data.message || 'No se pudo obtener el progreso.');
             }
@@ -48,13 +52,13 @@ export default function DailyTrackerCard ({ id, title, description, totalDays, i
         fetchProgress();
     }, [id]);
 
-    /** 
+    /**
      * Actualizar el progreso del logro.
      */
     const handleUpdateProgress = async () => {
         try {
             if (isCompleted || allDaysCompleted) return;
-            
+
             const token = await AsyncStorage.getItem('userToken');
             if (!token) {
                 Alert.alert('Error', 'No se pudo obtener el token de usuario.');

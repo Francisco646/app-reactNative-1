@@ -111,10 +111,19 @@ class RegisterService {
 
                 // Insertar logros dentro del rango de edad
                 const currentDate = new Date();
-                const birthDate = createdUser.fecha_nacimiento;
+                const birthDate = new Date(createdUser.fecha_nacimiento);
                 let age = currentDate.getFullYear() - birthDate.getFullYear();
 
-                if (age > reward.edad_minima && age < reward.edad_maxima) {
+                const monthDiff = currentDate.getMonth() - birthDate.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < birthDate.getDate())) {
+                    age--;
+                }
+
+                console.log('Logro:', reward);
+                console.log('Edad minima:', reward.edad_minima, 'Edad usuario:', age, 'Edad maxima:', reward.edad_maxima);
+                console.log('Tipo enfermedad usuario:', createdUser.tipo_enfermedad, 'tipo enfermedad logro:', reward.tipo_enfermedad);
+
+                if (age > reward.edad_minima && age < reward.edad_maxima && createdUser.tipo_enfermedad === reward.tipo_enfermedad) {
                     userReward = await rewardsService.createUserReward(newUser.id, reward.logro_id, "especifico");
                     insertedRewards.push(userReward);
                 }
