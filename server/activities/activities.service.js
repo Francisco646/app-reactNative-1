@@ -38,12 +38,18 @@ class ActivitiesService {
             const activitiesList = [];
 
             for(const activity of routineActivities) {
-                const activityId = activity.id;
+                const activityId = activity.id_actividad;
                 const activityResult = await activitiesRepository.findActivityById(activityId);
                 activitiesList.push(activityResult);
             }
 
-            return { statusCode: 200, message: activitiesList };
+            return {
+                statusCode: 200,
+                message: {
+                    activitiesList: activitiesList,
+                    activitiesParams: routineActivities
+                }
+            };
 
         } catch (error) {
             console.error('Error obteniendo las actividades:', error)
@@ -76,11 +82,11 @@ class ActivitiesService {
 
             // Crear nuevo registro en el historial
             await historyRepository.insertHistoryRecord(
-                user.id, 
-                'Actividad', 
-                new Date(), 
-                `Actividad con id ${actividad_id} completada`, 
-                plataforma, 
+                user.id,
+                'Actividad',
+                new Date(),
+                `Actividad con id ${actividad_id} completada`,
+                plataforma,
                 modelo_dispositivo
             );
             console.log('Registro de actividad en el historial creado con éxito');

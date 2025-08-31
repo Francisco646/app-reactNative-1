@@ -145,7 +145,8 @@ export default function Calendar() {
                     pathname: '/plans/RoutineDetailScreen',
                     params: {
                         routineData: JSON.stringify(routine),
-                        activitiesData: JSON.stringify(activitiesData),
+                        activitiesData: JSON.stringify(activitiesData.activitiesList),
+                        activitiesValues: JSON.stringify(activitiesData.activitiesParams),
                         isThisPlanActive: JSON.stringify(true)
                     }
                 });

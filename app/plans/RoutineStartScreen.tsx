@@ -6,7 +6,7 @@ const Pulse = require('react-native-pulse').default;
 
 export default function RoutineStartScreen() {
 
-    const { currentRoutine, activitiesOfRoutine, routineToDo } = useLocalSearchParams();
+    const { currentRoutine, activitiesOfRoutine, activitiesValues, routineToDo } = useLocalSearchParams();
     const [spinnerIsVisible, setSpinnerIsVisible] = React.useState(false);
 
     const currentRoutineAdapted = currentRoutine
@@ -21,6 +21,10 @@ export default function RoutineStartScreen() {
         ? JSON.parse(Array.isArray(routineToDo) ? routineToDo[0]: routineToDo)
         : [];
 
+    const activitiesValuesAdapted = activitiesValues
+        ? JSON.parse(Array.isArray(activitiesValues) ? activitiesValues[0]: activitiesValues)
+        : [];
+
     const handleRoutineRealizationScreen = async () => {
         try {
             setSpinnerIsVisible(true);
@@ -32,6 +36,7 @@ export default function RoutineStartScreen() {
                 params: {
                     currentRoutine: JSON.stringify(currentRoutineAdapted),
                     activitiesOfRoutine: JSON.stringify(activitiesOfRoutineAdapted),
+                    activitiesValues: JSON.stringify(activitiesValuesAdapted),
                     routineToDo: JSON.stringify(routineToDoAdapted)
                 }
             });
@@ -136,7 +141,7 @@ const styles = StyleSheet.create({
         marginVertical: 5,
     },
     startButton: {
-        backgroundColor: '#ffc107', 
+        backgroundColor: '#ffc107',
         paddingVertical: 18,
         paddingHorizontal: 40,
         borderRadius: 30,

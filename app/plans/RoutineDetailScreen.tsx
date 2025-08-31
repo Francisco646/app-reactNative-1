@@ -8,7 +8,7 @@ const Pulse = require('react-native-pulse').default;
 /* Mostrar los datos sobre una rutina específica de un plan */
 export default function RoutineDetailScreen() {
 
-    const { routineData, activitiesData, isThisPlanActive } = useLocalSearchParams();
+    const { routineData, activitiesData, activitiesValues, isThisPlanActive } = useLocalSearchParams();
     const [spinnerIsVisible, setSpinnerIsVisible] = React.useState(false);
 
     const routineDataAdapted = routineData
@@ -19,10 +19,14 @@ export default function RoutineDetailScreen() {
         ? JSON.parse(Array.isArray(activitiesData) ? activitiesData[0]: activitiesData)
         : [];
 
+    const activitiesValuesAdapted = activitiesValues
+        ? JSON.parse(Array.isArray(activitiesValues) ? activitiesValues[0]: activitiesValues)
+        : [];
+
     const isPlanActive = isThisPlanActive === 'true';
 
     // @ts-ignore
-    const handleActivityAccess = async (activity) => {
+    const handleActivityAccess = async (activity, activityValues) => {
         try {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
@@ -40,6 +44,7 @@ export default function RoutineDetailScreen() {
                     pathname: '/plans/ActivityDetailScreen',
                     params: {
                         activitiesData: JSON.stringify(activity),
+                        activitiesValues: JSON.stringify(activityValues),
                         materialData: JSON.stringify(material)
                     }
                 })
@@ -132,7 +137,7 @@ export default function RoutineDetailScreen() {
                         <TouchableOpacity
                             key={index}
                             style={styles.activityCard}
-                            onPress={() => handleActivityAccess(activity)}
+                            onPress={() => handleActivityAccess(activity, activitiesValuesAdapted[index])}
                         >
                             <View style={styles.cardHeader}>
                                 <Text style={styles.activityName}>{activity.nombre}</Text>
@@ -144,19 +149,14 @@ export default function RoutineDetailScreen() {
                                 </View>
                             </View>
                             <View style={styles.cardDetails}>
-                                {activity.numero_series > 0 && (
+                                {activitiesValuesAdapted[index].numero_series > 0 && (
                                     <Text style={styles.detailText}>
-                                        <Text style={styles.detailLabel}>Series:</Text> {activity.numero_series}
+                                        <Text style={styles.detailLabel}>Series:</Text> {activitiesValuesAdapted[index].numero_series}
                                     </Text>
                                 )}
-                                {activity.numero_repeticiones > 0 && (
+                                {activitiesValuesAdapted[index].repeticiones > 0 && (
                                     <Text style={styles.detailText}>
-                                        <Text style={styles.detailLabel}>Repeticiones:</Text> {activity.numero_repeticiones}
-                                    </Text>
-                                )}
-                                {activity.duracion_minutos > 0 && (
-                                    <Text style={styles.detailText}>
-                                        <Text style={styles.detailLabel}>Duración:</Text> {activity.duracion_minutos} min
+                                        <Text style={styles.detailLabel}>Repeticiones:</Text> {activitiesValuesAdapted[index].repeticiones}
                                     </Text>
                                 )}
                             </View>

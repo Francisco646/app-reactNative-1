@@ -5,7 +5,7 @@ import {useLocalSearchParams} from "expo-router";
 /* Mostrar los datos sobre una actividad específica de un plan */
 export default function ActivityDetailScreen() {
 
-    const { activitiesData, materialData } = useLocalSearchParams();
+    const { activitiesData, activitiesValues, materialData } = useLocalSearchParams();
 
     const activitiesDataAdapted = activitiesData
         ? JSON.parse(Array.isArray(activitiesData) ? activitiesData[0]: activitiesData)
@@ -15,7 +15,12 @@ export default function ActivityDetailScreen() {
         ? JSON.parse(Array.isArray(materialData) ? materialData[0]: materialData)
         : [];
 
+    const activitiesValuesAdapted = activitiesValues
+        ? JSON.parse(Array.isArray(activitiesValues) ? activitiesValues[0]: activitiesValues)
+        : [];
+
     const activityImage = require('../../assets/images/image_1296698.png');
+    const tiempo_maximo = activitiesValuesAdapted.tiempo_maximo / 60;
 
     return(
         <ScrollView style={styles.container}>
@@ -34,25 +39,24 @@ export default function ActivityDetailScreen() {
                 </View>
 
                 <View style={styles.detailsContainer}>
-                    {activitiesDataAdapted.numero_series > 0 && (
-                        <View style={styles.detailBox}>
-                            <Text style={styles.detailLabel}>Series</Text>
-                            <Text style={styles.detailValue}>{activitiesDataAdapted.numero_series}</Text>
-                        </View>
-                    )}
-                    {activitiesDataAdapted.numero_repeticiones > 0 && (
-                        <View style={styles.detailBox}>
-                            <Text style={styles.detailLabel}>Repeticiones</Text>
-                            <Text style={styles.detailValue}>{activitiesDataAdapted.numero_repeticiones}</Text>
-                        </View>
-                    )}
-                    {activitiesDataAdapted.duracion_minutos > 0 && (
-                        <View style={styles.detailBox}>
-                            <Text style={styles.detailLabel}>Duración</Text>
-                            <Text style={styles.detailValue}>{activitiesDataAdapted.duracion_minutos} min</Text>
-                        </View>
-                    )}
-
+                    <View style={styles.detailBox}>
+                        <Text style={styles.detailLabel}>Series</Text>
+                        <Text style={styles.detailValue}>{activitiesValuesAdapted.numero_series}</Text>
+                    </View>
+                    <View style={styles.detailBox}>
+                        <Text style={styles.detailLabel}>Repeticiones</Text>
+                        <Text style={styles.detailValue}>{activitiesValuesAdapted.repeticiones}</Text>
+                    </View>
+                </View>
+                <View style={styles.detailsContainer}>
+                    <View style={styles.detailBox}>
+                        <Text style={styles.detailLabel}>Duración</Text>
+                        <Text style={styles.detailValue}>{tiempo_maximo} minutos</Text>
+                    </View>
+                    <View style={styles.detailBox}>
+                        <Text style={styles.detailLabel}>Descanso</Text>
+                        <Text style={styles.detailValue}>{activitiesValuesAdapted.tiempo_descanso} segundos</Text>
+                    </View>
                 </View>
             </View>
 

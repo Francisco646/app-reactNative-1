@@ -106,7 +106,8 @@ export default function WellnessTestInitialScreen() {
                             pathname: '/plans/RoutineStartScreen',
                             params: {
                                 currentRoutine: JSON.stringify(currentRoutine),
-                                activitiesOfRoutine: JSON.stringify(activitiesData),
+                                activitiesOfRoutine: JSON.stringify(activitiesData.activitiesList),
+                                activitiesValues: JSON.stringify(activitiesData.activitiesParams),
                                 routineToDo: JSON.stringify(routinesData)
                             }
                         })
