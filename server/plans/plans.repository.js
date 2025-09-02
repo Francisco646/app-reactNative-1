@@ -13,7 +13,23 @@ const findPlansByDiseaseType = async (tipo_enfermedad) => {
     const values = [tipo_enfermedad];
 
     const result = await db.query(query, values);
-    return result[0];
+    return result;
+}
+
+const findPlansByAgeRange = async (edad_minima, edad_maxima) => {
+    const query = 'SELECT * FROM planes WHERE edad_minima >= ? AND edad_maxima <= ?';
+    const values = [edad_minima, edad_maxima];
+
+    const result = await db.query(query, values);
+    return result;
+}
+
+const findPlansByDiseaseAndAge = async (tipo_enfermedad, edad_minima, edad_maxima) => {
+    const query = 'SELECT * FROM planes WHERE tipo_enfermedad = ? AND edad_minima >= ? AND edad_maxima <= ?';
+    const values = [tipo_enfermedad, edad_minima, edad_maxima];
+
+    const result = await db.query(query, values);
+    return result;
 }
 
 const findAllPlans = async () => {
@@ -66,6 +82,8 @@ const updateEndDateUserPlan = async (id) => {
 module.exports = {
     findPlanById,
     findPlansByDiseaseType,
+    findPlansByAgeRange,
+    findPlansByDiseaseAndAge,
     findAllPlans,
     findPlansOfUser,
     createUserPlan,

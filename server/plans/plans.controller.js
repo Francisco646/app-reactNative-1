@@ -12,8 +12,27 @@ class PlansController {
     }
 
     async getPlansOfDisease(req, res){
-        const tipo_enfermedad = req.body.tipo_enfermedad;
+        const tipo_enfermedad = req.query.tipo_enfermedad;
         const plans = await plansService.getPlansOfDisease(tipo_enfermedad);
+        res.status(plans.statusCode).json(plans.message);
+    }
+
+    async getPlansByAgeRange(req, res){
+        const edad_minima = req.query.edad_minima;
+        const edad_maxima = req.query.edad_maxima;
+        const plans = await plansService.getPlansByAgeRange(edad_minima, edad_maxima);
+        res.status(plans.statusCode).json(plans.message);
+    }
+
+    async getPlansByDiseaseAndAge(req, res) {
+        const tipo_enfermedad = req.query.tipo_enfermedad;
+        const edad_minima = req.query.edad_minima;
+        const edad_maxima = req.query.edad_maxima;
+
+        const num_edad_minima = parseInt(edad_minima, 10);
+        const num_edad_maxima = parseInt(edad_maxima, 10);
+
+        const plans = await plansService.getPlansByDiseaseAndAge(tipo_enfermedad, num_edad_minima, num_edad_maxima);
         res.status(plans.statusCode).json(plans.message);
     }
 

@@ -38,10 +38,10 @@ class PlansService {
     }
 
     async insertInUserCalendar(numWeeks, routinesOfPlan, userId) {
-        
+
         let today = new Date();
         let routinesDates = [];
-        
+
         for(let i = 0; i < numWeeks; i++){
             let baseDate = new Date(today)
             baseDate.setDate(baseDate.getDate() + i * 7);
@@ -50,7 +50,7 @@ class PlansService {
                 case 1:
                     const nextMonday_1 = this.getNextWeekday(baseDate, 1);
                     await routinesRepository.insertRoutineInCalendar(userId, routinesOfPlan[0].id, nextMonday_1);
-                    
+
                     routinesDates.push(nextMonday_1);
                     break;
 
@@ -79,7 +79,7 @@ class PlansService {
                 default:
                     // Code
             }
-            
+
         }
 
         return routinesDates;
@@ -111,6 +111,26 @@ class PlansService {
         try {
             const plans = await planRepository.findPlansByDiseaseType(tipo_enfermedad)
             return { statusCode: 200, message: plans }
+        } catch (error) {
+            console.error('Error obteniendo los planes:', error);
+            return { statusCode: 500, message: error };
+        }
+    }
+
+    async getPlansByAgeRange(edad_minima, edad_maxima){
+        try {
+            const ageRangePlans = await planRepository.findPlansByAgeRange(edad_minima, edad_maxima)
+            return { statusCode: 200, message: ageRangePlans }
+        } catch (error) {
+            console.error('Error obteniendo los planes:', error);
+            return { statusCode: 500, message: error };
+        }
+    }
+
+    async getPlansByDiseaseAndAge(tipo_enfermedad, edad_minima, edad_maxima) {
+        try {
+            const diseaseAndAgePlans = await planRepository.findPlansByDiseaseAndAge(tipo_enfermedad, edad_minima, edad_maxima)
+            return { statusCode: 200, message: diseaseAndAgePlans }
         } catch (error) {
             console.error('Error obteniendo los planes:', error);
             return { statusCode: 500, message: error };

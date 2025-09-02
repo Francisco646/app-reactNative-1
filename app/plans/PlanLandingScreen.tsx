@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
-import React from "react";
+import React, {useEffect} from "react";
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const Pulse = require('react-native-pulse').default;
@@ -33,6 +33,73 @@ export default function PlanLandingScreen() {
 
     const [spinnerIsVisible, setSpinnerIsVisible] = React.useState(false);
 
+    const [ filteredPlans, setFilteredPlans ] = React.useState(allPlansArray);
+    const [ selectedDiseaseFilter, setSelectedDiseaseFilter ] = React.useState(null);
+    const [ selectedMinAgeFilter, setSelectedMinAgeFilter ] = React.useState(0);
+    const [ selectedMaxAgeFilter, setSelectedMaxAgeFilter ] = React.useState(0);
+
+    const diseaseFilters = ['Leucemia', 'Cáncer Cerebral', 'Linfoma Hodgkin', 'Linfoma No Hodgkin'];
+    const ageFilters = [
+        { min: 5, max: 8 },
+        { min: 9, max: 11 },
+        { min: 12, max: 14 }
+    ];
+
+    console.log('Disease Filters:', diseaseFilters);
+    console.log('Age Filters:', ageFilters);
+
+    useEffect(() => {
+        const handlePlanFiltering = async () => {
+            try {
+
+                if(!selectedDiseaseFilter && selectedMinAgeFilter === 0 && selectedMaxAgeFilter === 0) {
+                    const response = await fetch('http://localhost:3000/plan', { method: 'GET' })
+
+                    if(response.ok) {
+                        const data = await response.json();
+                        console.log('Todos los planes:', data);
+                        setFilteredPlans(data);
+                    }
+
+                } else if (selectedDiseaseFilter && selectedMinAgeFilter === 0 && selectedMaxAgeFilter === 0) {
+                    const response = await fetch(`http://localhost:3000/plan/disease-plan?tipo_enfermedad=${selectedDiseaseFilter}`, { method: 'GET' });
+
+                    if(response.ok) {
+                        const data = await response.json();
+                        console.log('Planes filtrados por enfermedad:', data);
+                        setFilteredPlans(data);
+                    }
+
+                } else if (!selectedDiseaseFilter && selectedMinAgeFilter && selectedMaxAgeFilter) {
+                    const response = await fetch(`http://localhost:3000/plan/age-plan?edad_minima=${selectedMinAgeFilter}&edad_maxima=${selectedMaxAgeFilter}`, { method: 'GET' });
+
+                    if(response.ok) {
+                        const data = await response.json();
+                        console.log('Planes filtrados por edad:', data);
+                        setFilteredPlans(data);
+                    }
+
+                } else {
+                    const response = await fetch(`http://localhost:3000/plan/disease-age-plan?tipo_enfermedad=${selectedDiseaseFilter}&edad_minima=${selectedMinAgeFilter}&edad_maxima=${selectedMaxAgeFilter}`, { method: 'GET' });
+
+                    if(response.ok) {
+                        const data = await response.json();
+                        console.log('Planes filtrados por enfermedad y edad:', data);
+                        setFilteredPlans(data);
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error filtrando planes:', error);
+                Alert.alert("Error filtrando planes");
+            }
+        };
+
+        handlePlanFiltering();
+    }, [selectedDiseaseFilter, selectedMinAgeFilter, selectedMaxAgeFilter]);
+
+
+
     // @ts-ignore
     const handleRoutinesAccess = async (plan) => {
         try {
@@ -47,9 +114,6 @@ export default function PlanLandingScreen() {
                 }
             })
 
-            // Obtener si el plan está seleccionado
-
-
             if(response.status === 200) {
                 const data = await response.json();
                 console.log('Rutinas del plan:', data);
@@ -57,19 +121,16 @@ export default function PlanLandingScreen() {
                 let planIsActive = false;
                 let canSelectPlan = false;
 
+                // Se comprueba si el usuario tiene un plan y si es el seleccionado
                 if (userHasActivePlan) {
-                // Hay un plan seleccionado. Ahora comprueba si es el plan actual
                     if (plan.id === userPlansDataObj.id) {
-                        // Plan seleccionado por el usuario
                         planIsActive = true;
                         canSelectPlan = false;
                     } else {
-                        // Ya hay un plan seleccionado, pero no es este
                         planIsActive = false;
                         canSelectPlan = false;
                     }
                 } else {
-                    // No hay ningún plan seleccionado
                     planIsActive = false;
                     canSelectPlan = true;
                 }
@@ -116,23 +177,81 @@ export default function PlanLandingScreen() {
 
                 <View style={styles.filterSection}>
                     <Text style={styles.filterTitle}>Filtrar planes</Text>
+
+                    {/* Filtros por enfermedad */}
+                    <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Por enfermedad</Text>
                     <View style={styles.filterContainer}>
-                        <TouchableOpacity style={styles.filterButton}>
-                            <Text style={styles.filterButtonText}>Filtro 1</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.filterButton}>
-                            <Text style={styles.filterButtonText}>Filtro 2</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.filterButton}>
-                            <Text style={styles.filterButtonText}>Filtro 3</Text>
-                        </TouchableOpacity>
+                        {diseaseFilters.map((disease) => (
+                            <TouchableOpacity
+                                key={disease}
+                                style={[
+                                    styles.filterButton,
+                                    selectedDiseaseFilter === disease && { backgroundColor: "#01b888" },
+                                ]}
+                                onPress={() => {
+                                    setSelectedDiseaseFilter(
+                                        // @ts-ignore
+                                        selectedDiseaseFilter === disease ? null : disease
+                                    );
+                                }}
+                            >
+                                <Text
+                                    style={[
+                                        styles.filterButtonText,
+                                        selectedDiseaseFilter === disease && { color: "#fff" },
+                                    ]}
+                                >
+                                    {disease}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+
+                    {/* Filtros por rango de edad */}
+                    <Text style={{ fontWeight: "bold", marginTop: 15, marginBottom: 5 }}>
+                        Por edad
+                    </Text>
+                    <View style={styles.filterContainer}>
+                        {ageFilters.map((range) => {
+                            const isSelected =
+                                selectedMinAgeFilter === range.min &&
+                                selectedMaxAgeFilter === range.max;
+
+                            return (
+                                <TouchableOpacity
+                                    key={`${range.min}-${range.max}`}
+                                    style={[
+                                        styles.filterButton,
+                                        isSelected && { backgroundColor: "#01b888" },
+                                    ]}
+                                    onPress={() => {
+                                        if (isSelected) {
+                                            setSelectedMinAgeFilter(0);
+                                            setSelectedMaxAgeFilter(0);
+                                        } else {
+                                            setSelectedMinAgeFilter(range.min);
+                                            setSelectedMaxAgeFilter(range.max);
+                                        }
+                                    }}
+                                >
+                                    <Text
+                                        style={[
+                                            styles.filterButtonText,
+                                            isSelected && { color: "#fff" },
+                                        ]}
+                                    >
+                                        {range.min}-{range.max}
+                                    </Text>
+                                </TouchableOpacity>
+                            );
+                        })}
                     </View>
                 </View>
 
                 <View style={styles.planListContainer}>
                     <Text style={styles.planListTitle}>Planes Disponibles</Text>
                     { /* @ts-ignore */ }
-                    {allPlansArray.map((plan) => {
+                    {filteredPlans.map((plan) => {
                         const isActive = userHasActivePlan && plan.id === userPlansDataObj.id;
                         return (
                             <TouchableOpacity
@@ -162,7 +281,7 @@ export default function PlanLandingScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5', // Color de fondo más suave
+        backgroundColor: '#f5f5f5',
         padding: 15,
     },
     spinnerContainer: {
@@ -231,7 +350,7 @@ const styles = StyleSheet.create({
         borderColor: 'transparent',
     },
     activePlanCard: {
-        borderColor: '#01b888', // Borde verde para el plan activo
+        borderColor: '#01b888',
     },
     planCardContent: {
         flexDirection: 'row',
@@ -258,5 +377,5 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
         fontSize: 12,
-    },
+    }
 });
