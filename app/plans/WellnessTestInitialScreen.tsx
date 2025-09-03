@@ -30,6 +30,9 @@ export default function WellnessTestInitialScreen() {
             setSpinnerIsVisible(true);
             const token = await AsyncStorage.getItem('userToken');
 
+            const rutinaRealizar = routineStartDataAdapted.routineToDo;
+            const usuarios_rutinas_id = rutinaRealizar.insertId;
+
             /* Almacenar los datos del test de bienestar */
             const wellnessTestResponse = await fetch('http://localhost:3000/routine/current', {
                 method: 'PUT',
@@ -44,7 +47,8 @@ export default function WellnessTestInitialScreen() {
                     sueño: sueno,
                     fatiga: fatiga,
                     animo: animo,
-                    isInitial: true
+                    isInitial: true,
+                    usuarios_rutinas_id: usuarios_rutinas_id
                 })
             });
 

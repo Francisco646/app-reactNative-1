@@ -128,6 +128,52 @@ class ActivitiesService {
         }
     }
 
+    async getCurrentActivitiesData(token, usuario_rutina_id) {
+        if(!token || token === 'undefined' || token === 'null') {
+            return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
+        }
+
+        try {
+            const decodedToken = jwt.decode(token, 'supersecret');
+            const emailFromToken = decodedToken.email;
+
+            if(!emailFromToken){
+                return { statusCode: 400, message: 'El email del token no es válido. Regresar a inicio.' };
+            }
+
+            const user = await userRepository.findUserByEmail(emailFromToken);
+            if(!user) {
+                return { statusCode: 404, message: 'No se ha encontrado el usuario con dicho email.' };
+            }
+
+            const currentActivitiesParams = await activitiesRepository.findActivitiesOfCurrentRoutine(usuario_rutina_id);
+            const currentActivities = [];       // Tabla de actividades
+            const currentActivitiesValues = []; // Tabla de rutinas_actividades
+
+            for(const activity of currentActivitiesParams) {
+                const activityId = activity.actividad_id;
+                const activityData = await activitiesRepository.findActivityById(activityId);
+                const activityValues = await activitiesRepository.findActivityDataOfRoutine(activityId);
+
+                currentActivities.push(activityData);
+                currentActivitiesValues.push(activityValues);
+            }
+
+            return {
+                statusCode: 200,
+                message: {
+                    currentActivities: currentActivities,
+                    currentActivitiesValues: currentActivitiesValues,
+                    currentActivitiesParams: currentActivitiesParams
+                }
+            };
+
+        } catch (error) {
+            console.error('Error obteniendo las actividades actuales:', error);
+            return { statusCode: 500, message: error };
+        }
+    }
+
 }
 
 const activitiesService = new ActivitiesService(userRepository, activitiesRepository, routinesRepository, historyRepository);

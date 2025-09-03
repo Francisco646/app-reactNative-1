@@ -270,7 +270,7 @@ class RoutinesService {
         }
     }
 
-    async createWellnessTest(token, dolor, sueño, fatiga, animo, routineId, isInitial) {
+    async createWellnessTest(token, dolor, sueño, fatiga, animo, routineId, isInitial, usuarios_rutinas_id) {
         if(!token || token === 'undefined' || token === 'null') {
             return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
         }
@@ -289,12 +289,53 @@ class RoutinesService {
             }
 
             const wellnessTest = await routinesRepository.createWellnessTest(user.id, dolor, sueño, fatiga, animo, isInitial);
+
+            if(isInitial) {
+                await routinesRepository.insertInitialWellnessTestId(usuarios_rutinas_id, wellnessTest.insertId);
+            } else {
+                await routinesRepository.insertFinalWellnessTestId(usuarios_rutinas_id, wellnessTest.insertId);
+            }
+
             return { statusCode: 201, message: wellnessTest };
 
         } catch (error) {
             console.error('Error creando el test de bienestar:', error);
             return { statusCode: 500, message: error };
         }
+    }
+
+    async getWellnessTestsOfRoutine(token, wellness_tests_initial_id, wellness_tests_final_id) {
+        if(!token || token === 'undefined' || token === 'null') {
+            return { statusCode: 401, message: 'No hay una sesión activa. Regresar a inicio.' };
+        }
+
+        try {
+            const decodedToken = jwt.decode(token, 'supersecret');
+            const emailFromToken = decodedToken.email;
+
+            if(!emailFromToken){
+                return { statusCode: 400, message: 'El email del token no es válido. Regresar a inicio.' };
+            }
+
+            const user = await userRepository.findUserByEmail(emailFromToken);
+            if(!user) {
+                return { statusCode: 404, message: 'No se ha encontrado el usuario con dicho email.' };
+            }
+
+            // Obtener los datos de los tests de bienestar
+            const initialWellnessTest = await routinesRepository.findWellnessTestById(wellness_tests_initial_id);
+            const finalWellnessTest = await routinesRepository.findWellnessTestById(wellness_tests_final_id);
+
+            return { statusCode: 200, message: {
+                initialWellnessTest: initialWellnessTest,
+                finalWellnessTest: finalWellnessTest
+            } };
+
+        } catch (error) {
+            console.error('Error obteniendo los tests de bienestar de la rutina:', error);
+            return { statusCode: 500, message: error };
+        }
+
     }
 
 }

@@ -7,14 +7,14 @@ const Pulse = require('react-native-pulse').default;
 
 export default function WellnessTestEndScreen() {
     const [spinnerIsVisible, setSpinnerIsVisible] = useState(false);
-    const { currentRoutine } = useLocalSearchParams(); 
+    const { currentRoutine } = useLocalSearchParams();
 
     /* Recopilar los valores introducidos en el picker */
     const [ dolor, setDolor ] = useState(null);
     const [ sueno, setSueno ] = useState(null);
     const [ fatiga, setFatiga ] = useState(null);
     const [ animo, setAnimo ] = useState(null);
-    
+
     const currentRoutineAdapted = currentRoutine
         ? JSON.parse(Array.isArray(currentRoutine) ? currentRoutine[0]: currentRoutine)
         : {};
@@ -38,19 +38,23 @@ export default function WellnessTestEndScreen() {
                     fatiga: fatiga,
                     animo: animo,
                     isInitial: false,
+                    usuarios_rutinas_id: currentRoutineAdapted.id,
                 }),
             });
 
             if(wellnessTestResponse.ok){
                 const wellnessTestData = await wellnessTestResponse.json();
                 console.log('Datos del test de bienestar almacenados:', wellnessTestData);
-            }
 
-            setSpinnerIsVisible(false);
-            router.push('/');
+                router.push({
+                    pathname: '/plans/RoutineResultsStatsScreen',
+                    params: { currentRoutine: JSON.stringify(currentRoutineAdapted) }
+                });
+            }
 
         } catch (error) {
             console.error('Error al finalizar la rutina y almacenar el test de bienestar:', error);
+        } finally {
             setSpinnerIsVisible(false);
         }
     }

@@ -65,9 +65,18 @@ class RoutinesController {
 
     async updatePerformedRoutine(req, res) {
         const token = req.headers.authorization?.split(' ')[1];
-        const { routineId, dolor, sueño, fatiga, animo, isInitial } = req.body;
+        const { routineId, dolor, sueño, fatiga, animo, isInitial, usuarios_rutinas_id } = req.body;
 
-        const wellnessTest = await routinesService.createWellnessTest(token, dolor, sueño, fatiga, animo, routineId, isInitial);
+        const wellnessTest = await routinesService.createWellnessTest(token, dolor, sueño, fatiga, animo, routineId, isInitial, usuarios_rutinas_id);
+        res.status(wellnessTest.statusCode).json(wellnessTest.message);
+    }
+
+    async getWellnessTests(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        const wellness_tests_initial_id = req.query.initial_id;
+        const wellness_tests_final_id = req.query.final_id;
+
+        const wellnessTest = await routinesService.getWellnessTestsOfRoutine(token, wellness_tests_initial_id, wellness_tests_final_id);
         res.status(wellnessTest.statusCode).json(wellnessTest.message);
     }
 

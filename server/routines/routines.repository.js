@@ -116,6 +116,34 @@ const findWellnessTestById = async (id) => {
     return result[0];
 };
 
+/* Insertar el id de test de bienestar inicial */
+const insertInitialWellnessTestId = async (usuarios_rutinas_id, wellness_test_id) => {
+    const query = 'UPDATE usuarios_rutinas SET wellness_tests_initial_id = ? WHERE id = ?';
+    const values = [wellness_test_id, usuarios_rutinas_id];
+
+    const result = await db.query(query, values);
+    return result;
+}
+
+/* Insertar el ide de test de bienestar final */
+const insertFinalWellnessTestId = async (usuarios_rutinas_id, wellness_test_id) => {
+    const query = 'UPDATE usuarios_rutinas SET wellness_tests_final_id = ? WHERE id = ?';
+    const values = [wellness_test_id, usuarios_rutinas_id];
+
+    const result = await db.query(query, values);
+    return result;
+}
+
+/* Obtener un test de bienestar */
+const getWellnessTestById = async (id) => {
+    const query = 'SELECT * FROM wellness_tests WHERE id = ?';
+    const values = [id];
+
+    const result = await db.query(query, values);
+    return result[0];
+}
+
+
 module.exports = {
     findRoutineById,
     findRoutinesByPlanId,
@@ -132,5 +160,7 @@ module.exports = {
     findRoutinesInCalendarByUserIdAndDate,
 
     createWellnessTest,
-    findWellnessTestById
+    findWellnessTestById,
+    insertInitialWellnessTestId,
+    insertFinalWellnessTestId
 };

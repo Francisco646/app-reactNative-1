@@ -17,6 +17,24 @@ const findActivitiesOfRoutine = async(id_rutina) => {
     return result;
 }
 
+/* Obtener datos generales de las actividades de una rutina */
+const findActivityDataOfRoutine = async(id_actividad) => {
+    const query = 'SELECT * FROM rutinas_actividades WHERE id_actividad = ?';
+    const values = [id_actividad];
+
+    const result = await db.query(query, values);
+    return result[0];
+}
+
+/* Obtener las actividades correspondientes a la rutina actual */
+const findActivitiesOfCurrentRoutine = async(usuario_rutina_id) => {
+    const query = 'SELECT * FROM usuarios_actividades WHERE usuario_rutina_id = ?';
+    const values = [usuario_rutina_id];
+
+    const result = await db.query(query, values);
+    return result;
+}
+
 /* Añadir las actividades que deben realizarse durante una rutina */
 const addActivityOfUserRoutine = async(usuario_rutina_id, actividad_id) => {
     const query = 'INSERT INTO usuarios_actividades (usuario_rutina_id, actividad_id) VALUES (?, ?)';
@@ -65,6 +83,8 @@ const findNumberOfUserCompletedActivities = async(usuario_rutina_id) => {
 module.exports = {
     findActivityById,
     findActivitiesOfRoutine,
+    findActivitiesOfCurrentRoutine,
+    findActivityDataOfRoutine,
 
     addActivityOfUserRoutine,
     updateActivityOfUserRoutine,

@@ -30,6 +30,13 @@ class ActivitiesController {
         res.status(numberOfCompletedActivities.statusCode).json(numberOfCompletedActivities.message);
     }
 
+    async getActivitiesOfCurrentRoutine(req, res){
+        const token = req.headers.authorization?.split(' ')[1];
+        const usuario_rutina_id = req.query.usuario_rutina_id;
+        const activitiesOfCurrentRoutine = await activitiesService.getCurrentActivitiesData(token, usuario_rutina_id);
+        res.status(activitiesOfCurrentRoutine.statusCode).json(activitiesOfCurrentRoutine.message);
+    }
+
 }
 
 const activitiesController = new ActivitiesController(activitiesService);

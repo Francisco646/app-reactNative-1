@@ -16,6 +16,7 @@ class RoutinesRoutes {
         this.router.get('/date', routinesController.getRoutinesOfDate);
         this.router.get('/:id', routinesController.getRoutineById);
         this.router.put('/current', routinesController.updatePerformedRoutine);
+        this.router.get('/current/test', routinesController.getWellnessTests)
         this.router.get('/current/:id', routinesController.getCurrentRoutine);
     }
 

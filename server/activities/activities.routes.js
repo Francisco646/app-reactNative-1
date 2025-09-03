@@ -12,6 +12,7 @@ class ActivitiesRoutes {
         this.router.get('/', activitiesController.getActivities);
         this.router.put('/completion', activitiesController.setActivityAsCompleted);
         this.router.get('/quantity', activitiesController.getNumberOfCompletedActivities);
+        this.router.get('/current', activitiesController.getActivitiesOfCurrentRoutine);
     }
 
     getRouter() {
